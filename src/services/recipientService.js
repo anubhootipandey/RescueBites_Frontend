@@ -1,0 +1,8 @@
+// src/services/recipientService.js
+import api from "../utils/api";
+
+export const getRecipientDashboard = () =>
+  api.get("/recipient/dashboard");
+
+export const requestFood = (payload) =>
+  api.post("/recipient/request", payload); // ✅ Used above
