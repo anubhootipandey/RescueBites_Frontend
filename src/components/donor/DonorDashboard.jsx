@@ -35,6 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
+import api from "../../utils/api";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -43,6 +44,23 @@ const DonorDashboard = () => {
   const [myDonations, setMyDonations] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+
+  const [approvedRequests, setApprovedRequests] = useState([]);
+
+useEffect(() => {
+  const fetchApprovedRequests = async () => {
+    try {
+      const res = await api.get("/donor/approved-requests");
+      console.log("Approved Requests Response:", res.data);
+      setApprovedRequests(res.data.approvedRequests || []);
+    } catch (err) {
+      console.error("Failed to fetch approved requests", err);
+    }
+  };
+  fetchApprovedRequests();
+}, []);
+
+
 
   useEffect(() => {
     async function fetchAllData() {
@@ -415,6 +433,54 @@ const DonorDashboard = () => {
             </div>
           )}
         </motion.div>
+
+        {approvedRequests.length > 0 && (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, delay: 0.6 }}
+  >
+    <Card className="p-6 lg:p-8 hover:shadow-xl transition-all duration-300">
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+          <AlertTriangle className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <h3 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            Approved Food Requests from Recipients
+          </h3>
+          <p className="text-gray-600">These recipients have requested food and were approved</p>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+          <thead>
+            <tr className="bg-gray-100 text-left text-sm font-medium text-gray-700 uppercase">
+              <th className="px-6 py-3">Recipient</th>
+              <th className="px-6 py-3">Items</th>
+              <th className="px-6 py-3">Address</th>
+              <th className="px-6 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {approvedRequests.map((req) => (
+              <tr key={req._id} className="border-b hover:bg-gray-50">
+                <td className="px-6 py-4 font-medium text-gray-900">
+                  {req.recipientId?.username || "N/A"}
+                </td>
+                <td className="px-6 py-4">{req.neededItems}</td>
+                <td className="px-6 py-4">{req.address}</td>
+                <td className="px-6 py-4 capitalize text-green-600 font-semibold">{req.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  </motion.div>
+)}
+
 
         {/* Impact Summary */}
         {myDonations.length > 0 && (

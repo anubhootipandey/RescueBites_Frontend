@@ -117,7 +117,7 @@ const barData = [
       await updateRequestStatus(id, status);
       toast.success(`Request ${status} successfully!`);
       fetchRequests();
-      fetchDashboard(); // ✅ Update stats after change
+      fetchDashboard(); //  Update stats after change
     } catch (err) {
       toast.error("Failed to update status");
     }
@@ -751,16 +751,10 @@ const barData = [
 
 
             {/* Placeholder for other tabs */}
-            {["users", "analytics", "settings"].includes(activeTab) && (
+            {["settings"].includes(activeTab) && (
               <Card className="p-12 text-center">
                 <div className="max-w-md mx-auto">
                   <div className="mb-6">
-                    {activeTab === "users" && (
-                      <Users className="w-16 h-16 mx-auto text-gray-300" />
-                    )}
-                    {activeTab === "analytics" && (
-                      <PieChart className="w-16 h-16 mx-auto text-gray-300" />
-                    )}
                     {activeTab === "settings" && (
                       <Settings className="w-16 h-16 mx-auto text-gray-300" />
                     )}

@@ -11,12 +11,15 @@ import {
   Award,
   Menu,
   X,
+  Box,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Card from "../ui/Card";
-import { getRecipientDashboard } from "../../services/recipientService";
+import { getAvailableDonations, getRecipientDashboard } from "../../services/recipientService";
 import toast from "react-hot-toast";
 import RequestFoodForm from "../recipient/RequestFoodForm";
+import { requestFood } from "../../services/recipientService";
+
 
 const RecipientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({});
@@ -25,6 +28,8 @@ const RecipientDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
+  const [donations, setDonations] = useState([]);
+  const [loadingDonations, setLoadingDonations] = useState(false);
   const itemsPerPage = 6;
 
   const filteredRequests =
@@ -46,6 +51,25 @@ const RecipientDashboard = () => {
       console.error("Failed to load dashboard:", err);
     }
   };
+
+  const fetchDonations = async () => {
+  try {
+    setLoadingDonations(true);
+    const res = await getAvailableDonations();
+    setDonations(res.data);
+  } catch (err) {
+    console.error("Failed to fetch donations", err);
+    toast.error("Failed to load donations");
+  } finally {
+    setLoadingDonations(false);
+  }
+};
+
+  useEffect(() => {
+  if (activeTab === "donations") {
+    fetchDonations(); // This is missing in your code currently
+  }
+}, [activeTab]);
 
   useEffect(() => {
     fetchDashboard();
@@ -71,6 +95,82 @@ const RecipientDashboard = () => {
   };
 
   const closeSidebar = () => setSidebarOpen(false);
+
+ const handleRequestDonation = async (donation) => {
+  console.log("Selected donation:", donation);
+
+  if (!donation?.foodType || !donation?.location) {
+    console.warn("Invalid donation payload:", donation);
+    return;
+  }
+
+  const payload = {
+    neededItems: donation.foodType,
+    address: donation.location,
+    donationId: donation._id,
+  };
+
+  console.log("Payload to send:", payload); // For debugging
+
+  try {
+    await requestFood({
+      neededItems: donation.foodType, // correctly mapped
+      address: donation.location,     // correctly mapped
+      donationId: donation._id,
+    });
+    toast.success("🎉 Donation request submitted!");
+    fetchDashboard();
+    fetchDonations();
+  } catch (err) {
+    toast.error("Failed to request donation");
+    console.error(err);
+  }
+};
+
+
+
+  const renderDonationsTab = () => (
+    <div>
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">
+        Available Donations
+      </h2>
+      {loadingDonations ? (
+        <p className="text-gray-500">Loading donations...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {donations.length > 0 ? (
+            donations.map((donation) => (
+              <Card
+                key={donation._id}
+                className="p-5 border-l-4 border-orange-500 shadow"
+              >
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {donation.foodType}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Quantity: {donation.quantity}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Donor: {donation.donorName || donation.donor?.name}
+                </p>
+                <p className="text-sm text-gray-600 mb-3">
+                  Location: {donation.location}
+                </p>
+                <button
+                  onClick={() => handleRequestDonation(donation)}
+                  className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                >
+                  Request This
+                </button>
+              </Card>
+            ))
+          ) : (
+            <p className="text-gray-500">No donations available right now.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
@@ -144,6 +244,7 @@ const RecipientDashboard = () => {
                 icon: Award,
                 color: "purple",
               },
+              { id: "donations", label: "Donations List", icon: Box, color: "orange" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -541,6 +642,8 @@ const RecipientDashboard = () => {
               <RequestFoodForm />
             </div>
           )}
+
+          {activeTab === "donations" && renderDonationsTab()}
         </div>
       </div>
     </div>
