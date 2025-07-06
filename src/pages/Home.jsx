@@ -38,15 +38,15 @@ const Home = () => {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <Card className="text-center p-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">1,250+</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">0+</div>
                 <div className="text-gray-600">Meals Rescued</div>
               </Card>
               <Card className="text-center p-6">
-                <div className="text-3xl font-bold text-amber-600 mb-2">850+</div>
+                <div className="text-3xl font-bold text-amber-600 mb-2">3</div>
                 <div className="text-gray-600">Active Users</div>
               </Card>
               <Card className="text-center p-6">
-                <div className="text-3xl font-bold text-green-600 mb-2">95%</div>
+                <div className="text-3xl font-bold text-green-600 mb-2">0%</div>
                 <div className="text-gray-600">Success Rate</div>
               </Card>
             </motion.div>

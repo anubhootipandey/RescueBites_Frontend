@@ -25,18 +25,18 @@ const RecipientDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 6;
+  const itemsPerPage = 6;
 
-const filteredRequests = dashboardData.requests?.filter((r) =>
-  r.neededItems.toLowerCase().includes(searchTerm.toLowerCase())
-) || [];
+  const filteredRequests =
+    dashboardData.requests?.filter((r) =>
+      r.neededItems.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
-const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-const paginatedRequests = filteredRequests.slice(
-  (currentPage - 1) * itemsPerPage,
-  currentPage * itemsPerPage
-);
-
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const paginatedRequests = filteredRequests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const fetchDashboard = async () => {
     try {
@@ -430,41 +430,62 @@ const paginatedRequests = filteredRequests.slice(
                 </div>
               </div>
 
-              {/* Request Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                {paginatedRequests.map((request) => (
-                  <Card key={request._id} className="p-4 lg:p-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-400">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-2">Food Request</h4>
-                          <div className="space-y-2">
-                            <div className="flex items-start space-x-2">
-                              <span className="text-sm font-medium text-gray-600 min-w-[50px]">Items:</span>
-                              <span className="text-sm text-gray-800">{request.neededItems}</span>
-                            </div>
-                            <div className="flex items-start space-x-2">
-                              <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                              <span className="text-sm text-gray-800">{request.address}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="pt-3 border-t border-gray-100">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(request.status)}`}>
-                          {request.status || "pending"}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+              {/* Table Format for Requests */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-xl shadow">
+                  <thead className="bg-blue-100">
+                    <tr>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+                        #
+                      </th>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+                        Items
+                      </th>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+                        Address
+                      </th>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedRequests.map((request, index) => (
+                      <tr
+                        key={request._id}
+                        className="border-t border-gray-100"
+                      >
+                        <td className="px-6 py-4 text-sm text-gray-800">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-800">
+                          {request.neededItems}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-800">
+                          {request.address}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-block px-3 py-1 text-xs rounded-full font-medium border ${getStatusColor(
+                              request.status
+                            )}`}
+                          >
+                            {request.status || "pending"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
-              {/* ✅ Pagination */}
+              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center space-x-4 mt-8">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                   >
@@ -474,7 +495,9 @@ const paginatedRequests = filteredRequests.slice(
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                   >

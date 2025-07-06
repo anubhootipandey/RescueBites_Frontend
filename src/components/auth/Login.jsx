@@ -15,24 +15,28 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setMsg('');
-  try {
-    const res = await api.post('/auth/login', { username, password });
-    
-    const { token, role, userId } = res.data;
+    e.preventDefault();
+    setLoading(true);
+    setMsg('');
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', role);
-    localStorage.setItem('userId', userId);
+    try {
+      const res = await api.post('/auth/login', { username, password });
 
-    setMsg('Login successful');
-    navigate('/dashboard');
-  } catch (error) {
-    setMsg(error.response?.data?.message || 'Login failed');
-  }
-};
+      const { token, role, userId } = res.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('userId', userId);
+
+      setMsg('Login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login Error:', error.response?.data || error.message);
+      setMsg(error.response?.data?.message || 'Login failed!');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -54,7 +58,13 @@ export default function Login() {
           </div>
 
           {msg && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+            <div
+              className={`px-4 py-3 mb-6 rounded-lg text-sm font-medium ${
+                msg.toLowerCase().includes('success')
+                  ? 'bg-green-50 border border-green-200 text-green-700'
+                  : 'bg-red-50 border border-red-200 text-red-600'
+              }`}
+            >
               {msg}
             </div>
           )}
@@ -68,7 +78,7 @@ export default function Login() {
                 <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <input
                   id="username"
-                  type="username"
+                  type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
