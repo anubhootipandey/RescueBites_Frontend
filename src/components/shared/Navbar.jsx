@@ -82,9 +82,10 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
-            <Link to="/about" className="text-gray-700 hover:text-blue-600 transition-colors">About</Link>
-            <Link to="/recipe-generator" className="text-gray-700 hover:text-blue-600 transition-colors">AI Recipe Generator</Link>
+            <Link to="/" className="text-gray-700 hover:text-purple-600 transition-colors">Home</Link>
+            <Link to="/about" className="text-gray-700 hover:text-purple-600 transition-colors">About</Link>
+            <Link to="/recipe-generator" className="text-gray-700 hover:text-purple-600 transition-colors">AI Recipe Generator</Link>
+            <Link to="/community" className="text-gray-700 hover:text-purple-600 transition-colors">Community</Link>
           </nav>
 
           {/* Desktop User Section */}
@@ -147,12 +148,14 @@ const Navbar = () => {
               className="md:hidden border-t border-gray-200 py-4"
             >
               <div className="flex flex-col space-y-4 px-2">
-                <Link to="/" onClick={closeMobileMenu} className="text-gray-700 hover:text-blue-600">Home</Link>
-                <Link to="/about" onClick={closeMobileMenu} className="text-gray-700 hover:text-blue-600">About</Link>
+                <Link to="/" onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600 transition-colors">Home</Link>
+                <Link to="/about" onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600 transition-colors">About</Link>
+                <Link to="/recipe-generator" onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600 transition-colors">AI Recipe Generator</Link>
+                <Link to="/community" onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600 transition-colors">Community</Link>
 
                 {user ? (
                   <>
-                    <Link to={getDashboardPath()} onClick={closeMobileMenu} className="text-gray-700 hover:text-blue-600">Dashboard</Link>
+                    <Link to={getDashboardPath()} onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600">Dashboard</Link>
                     <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
                     <button onClick={handleLogout} className="flex items-center space-x-2 text-red-600 hover:text-red-700">
                       <LogOut className="w-4 h-4" />
@@ -161,7 +164,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <Link to="/login" onClick={closeMobileMenu} className="text-gray-700 hover:text-blue-600">Login</Link>
+                    <Link to="/login" onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600">Login</Link>
                     <Link to="/register" onClick={closeMobileMenu} className="bg-blue-500 text-white py-2 px-4 rounded-lg text-center">Get Started</Link>
                   </>
                 )}

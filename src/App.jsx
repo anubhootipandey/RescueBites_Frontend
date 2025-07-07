@@ -16,6 +16,7 @@ import RequestFoodForm from "./components/recipient/RequestFoodForm";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
 import AIRecipeGenerator from "./pages/AIRecipeGenerator";
+import Community from "./pages/community/Community";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/donor/edit/:id" element={<EditDonation />} />
         <Route path="/about" element={<About />} />
         <Route path="/recipe-generator" element={<AIRecipeGenerator />} />
+        <Route path="/community" element={<Community />} />
 
         <Route
           path="/donor"
