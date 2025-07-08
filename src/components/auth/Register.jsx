@@ -120,7 +120,6 @@ const Register = () => {
                 >
                   <option value="donor">Donate surplus food</option>
                   <option value="recipient">Receive donated food</option>
-                  <option value="admin">Admin access</option>
                 </select>
               </div>
             </div>

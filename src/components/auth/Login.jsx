@@ -38,6 +38,19 @@ export default function Login() {
     }
   };
 
+ const handleGuestLogin = async () => {
+  try {
+    const res = await api.post("/auth/skip-login"); // NOT axios directly
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("Guest login failed", err);
+  }
+};
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
@@ -120,6 +133,15 @@ export default function Login() {
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
+            <Button
+  onClick={handleGuestLogin}
+  variant="outline"
+  type="button"
+  className="w-full"
+>
+  Continue as Guest
+</Button>
+
           </form>
 
           <div className="mt-8 text-center">
