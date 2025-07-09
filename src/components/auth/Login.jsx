@@ -29,7 +29,18 @@ export default function Login() {
       localStorage.setItem('userId', userId);
 
       setMsg('Login successful!');
-      navigate('/dashboard');
+      if (role === 'admin') {
+  navigate('/admin/dashboard');
+} else if (role === 'donor') {
+  navigate('/donor');
+} else if (role === 'recipient') {
+  navigate('/recipient/dashboard');
+} else if (role === 'guest') {
+  navigate('/guest');
+} else {
+  navigate('/dashboard');
+}
+
     } catch (error) {
       console.error('Login Error:', error.response?.data || error.message);
       setMsg(error.response?.data?.message || 'Login failed!');
@@ -40,10 +51,12 @@ export default function Login() {
 
  const handleGuestLogin = async () => {
   try {
-    const res = await api.post("/auth/skip-login"); // NOT axios directly
+    const res = await api.post("/auth/skip-login"); 
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
-    navigate("/dashboard");
+    console.log();
+    
+    navigate("/guest"); 
   } catch (err) {
     console.error("Guest login failed", err);
   }

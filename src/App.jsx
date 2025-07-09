@@ -17,6 +17,7 @@ import About from "./pages/About";
 import Profile from "./pages/Profile";
 import AIRecipeGenerator from "./pages/AIRecipeGenerator";
 import Community from "./pages/community/Community";
+import GuestDashboard from "./pages/GuestDashboard";
 
 function App() {
   return (
@@ -31,6 +32,15 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/recipe-generator" element={<AIRecipeGenerator />} />
         <Route path="/community" element={<Community />} />
+
+        <Route
+          path="/guest"
+          element={
+            <ProtectedRoute allowedRoles={["guest"]}>
+              <GuestDashboard />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/donor"
@@ -60,17 +70,18 @@ function App() {
         />
 
         <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+  path="/admin/dashboard"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>
+
         <Route
           path="/admin/requests"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <RequestList />
             </ProtectedRoute>
           }
@@ -86,14 +97,13 @@ function App() {
         />
 
         <Route
-  path="/profile"
-  element={
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
-  }
-/>
-
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <Footer />
     </Router>

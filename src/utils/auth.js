@@ -10,6 +10,10 @@ export const getCurrentUser = () => {
   }
 };
 
+export const isAdmin = () => {
+  return getUserRole() === "admin";
+};
+
 export const logout = () => {
   localStorage.removeItem('token');
 };

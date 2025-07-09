@@ -48,22 +48,22 @@ const AdminDashboard = () => {
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const pieData = [
-  { name: "Pending", value: dashboardData?.requestStats?.pending || 0 },
-  { name: "Approved", value: dashboardData?.requestStats?.approved || 0 },
-  { name: "Rejected", value: dashboardData?.requestStats?.rejected || 0 },
-];
+//   const pieData = [
+//   { name: "Pending", value: dashboardData?.requestStats?.pending || 0 },
+//   { name: "Approved", value: dashboardData?.requestStats?.approved || 0 },
+//   { name: "Rejected", value: dashboardData?.requestStats?.rejected || 0 },
+// ];
 
-const COLORS = ["#FBBF24", "#10B981", "#EF4444"]; // yellow, green, red
+// const COLORS = ["#FBBF24", "#10B981", "#EF4444"]; // yellow, green, red
 
-const barData = [
-  {
-    name: "Requests",
-    Pending: dashboardData?.requestStats?.pending || 0,
-    Approved: dashboardData?.requestStats?.approved || 0,
-    Rejected: dashboardData?.requestStats?.rejected || 0,
-  },
-];
+// const barData = [
+//   {
+//     name: "Requests",
+//     Pending: dashboardData?.requestStats?.pending || 0,
+//     Approved: dashboardData?.requestStats?.approved || 0,
+//     Rejected: dashboardData?.requestStats?.rejected || 0,
+//   },
+// ];
 
 
   // Fetch dashboard data ONCE when the component mounts
@@ -78,15 +78,22 @@ const barData = [
   }, [activeTab]);
 
   const fetchDashboard = async () => {
-    try {
-      const res = await getAdminDashboard();
-      console.log("Dashboard Data:", res.data); // Debugging
-      setDashboardData(res.data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load dashboard");
-    }
-  };
+  try {
+    const token = localStorage.getItem("token");
+    const res = await api.get("/admin/dashboard", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Dashboard Data:", res.data);
+    setDashboardData(res.data);
+  } catch (err) {
+    console.error("Dashboard Error:", err);
+    toast.error("Failed to load dashboard");
+  }
+};
+
 
   const fetchDonations = async () => {
     try {

@@ -10,30 +10,25 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-
-      // Check if token has expired
-      const currentTime = Date.now() / 1000; // in seconds
-      if (decoded.exp < currentTime) {
-        // ❌ Token expired
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          localStorage.removeItem('token');
+          setUser(null);
+          navigate('/login');
+        } else {
+          setUser(decoded);
+        }
+      } catch (error) {
+        console.error('Invalid token', error);
         localStorage.removeItem('token');
         setUser(null);
-        navigate('/login');
-      } else {
-        // Token valid
-        setUser(decoded);
       }
-    } catch (error) {
-      console.error('Invalid token', error);
-      localStorage.removeItem('token');
-      setUser(null);
     }
-  }
-}, [navigate]);
-
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -43,18 +38,18 @@ const Navbar = () => {
   };
 
   const getDashboardPath = () => {
-  if (!user) return '/';
-  switch (user.role) {
-    case 'admin':
-      return '/admin/dashboard';
-    case 'recipient':
-      return '/recipient/dashboard'; // ← ensure the path is correct
-    case 'donor':
-      return '/donor/dashboard'; // ← adjust if needed
-    default:
-      return '/';
-  }
-};
+    if (!user) return '/';
+    switch (user.role) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'recipient':
+        return '/recipient/dashboard';
+      case 'donor':
+        return '/donor/dashboard';
+      default:
+        return '/';
+    }
+  };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -92,15 +87,18 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Link to="/profile">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    <User className="w-4 h-4" />
-                  </motion.button>
-                </Link>
+                {/* ✅ Show Profile only if not admin */}
+                {user.role !== "admin" && (
+                  <Link to="/profile">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                    </motion.button>
+                  </Link>
+                )}
               </>
             ) : (
               <div className="flex items-center space-x-3">
@@ -156,7 +154,12 @@ const Navbar = () => {
                 {user ? (
                   <>
                     <Link to={getDashboardPath()} onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600">Dashboard</Link>
-                    <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
+
+                    {/* ✅ Mobile Profile visible only to non-admin */}
+                    {user.role !== "admin" && (
+                      <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
+                    )}
+
                     <button onClick={handleLogout} className="flex items-center space-x-2 text-red-600 hover:text-red-700">
                       <LogOut className="w-4 h-4" />
                       <span>Logout</span>
