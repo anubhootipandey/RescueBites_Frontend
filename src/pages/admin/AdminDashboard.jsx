@@ -12,6 +12,7 @@ import {
   X,
   RefreshCw,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 import {
   PieChart as RePieChart,
@@ -27,7 +28,7 @@ import {
   Legend,
   LineChart,
   Line,
-} from 'recharts';
+} from "recharts";
 import {
   getAdminDashboard,
   getAllRequests,
@@ -47,24 +48,39 @@ const AdminDashboard = () => {
   const [loadingDonations, setLoadingDonations] = useState(false);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [postList, setPostList] = useState([]);
 
-//   const pieData = [
-//   { name: "Pending", value: dashboardData?.requestStats?.pending || 0 },
-//   { name: "Approved", value: dashboardData?.requestStats?.approved || 0 },
-//   { name: "Rejected", value: dashboardData?.requestStats?.rejected || 0 },
-// ];
+//   const fetchPosts = async (role) => {
+//   try {
+//     const token = localStorage.getItem("token");
+//     const res = await api.get(`/posts${role ? `?role=${role}` : ""}`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     setPostList(res.data);
+//   } catch (err) {
+//     toast.error("Failed to fetch posts");
+//   }
+// };
 
-// const COLORS = ["#FBBF24", "#10B981", "#EF4444"]; // yellow, green, red
 
-// const barData = [
-//   {
-//     name: "Requests",
-//     Pending: dashboardData?.requestStats?.pending || 0,
-//     Approved: dashboardData?.requestStats?.approved || 0,
-//     Rejected: dashboardData?.requestStats?.rejected || 0,
-//   },
-// ];
+  //   const pieData = [
+  //   { name: "Pending", value: dashboardData?.requestStats?.pending || 0 },
+  //   { name: "Approved", value: dashboardData?.requestStats?.approved || 0 },
+  //   { name: "Rejected", value: dashboardData?.requestStats?.rejected || 0 },
+  // ];
 
+  // const COLORS = ["#FBBF24", "#10B981", "#EF4444"]; // yellow, green, red
+
+  // const barData = [
+  //   {
+  //     name: "Requests",
+  //     Pending: dashboardData?.requestStats?.pending || 0,
+  //     Approved: dashboardData?.requestStats?.approved || 0,
+  //     Rejected: dashboardData?.requestStats?.rejected || 0,
+  //   },
+  // ];
 
   // Fetch dashboard data ONCE when the component mounts
   useEffect(() => {
@@ -78,22 +94,21 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   const fetchDashboard = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await api.get("/admin/dashboard", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get("/admin/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    console.log("Dashboard Data:", res.data);
-    setDashboardData(res.data);
-  } catch (err) {
-    console.error("Dashboard Error:", err);
-    toast.error("Failed to load dashboard");
-  }
-};
-
+      console.log("Dashboard Data:", res.data);
+      setDashboardData(res.data);
+    } catch (err) {
+      console.error("Dashboard Error:", err);
+      toast.error("Failed to load dashboard");
+    }
+  };
 
   const fetchDonations = async () => {
     try {
@@ -161,12 +176,12 @@ const AdminDashboard = () => {
       icon: PieChart,
       gradient: "from-indigo-500 to-blue-500",
     },
-    {
-      id: "profile",
-      label: "My Profile",
-      icon: Users,
-      gradient: "from-blue-400 to-indigo-500",
-    },
+    // {
+    //   id: "posts",
+    //   label: "Posts",
+    //   icon: MessageCircle,
+    //   gradient: "from-rose-500 to-pink-500",
+    // },
     {
       id: "settings",
       label: "Settings",
@@ -362,7 +377,11 @@ const AdminDashboard = () => {
             </div>
           </div>
           <Button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              fetchDashboard();
+              if (activeTab === "donations") fetchDonations();
+              if (activeTab === "requests") fetchRequests();
+            }}
             variant="outline"
             className="flex items-center space-x-2"
           >
@@ -439,115 +458,117 @@ const AdminDashboard = () => {
               </div>
             )}
 
-       {activeTab === "donations" && (
-  <Card className="p-6">
-    <div className="flex items-center justify-between mb-6">
-      <h3 className="text-xl font-semibold text-gray-800">
-        All Donations
-      </h3>
-      <Button onClick={fetchDonations} disabled={loadingDonations}>
-        {loadingDonations ? (
-          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <RefreshCw className="w-4 h-4 mr-2" />
-        )}
-        Refresh
-      </Button>
-    </div>
-
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Food Item
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Quantity
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Location
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Donor
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="bg-white divide-y divide-gray-200">
-          {loadingDonations ? (
-            <tr>
-              <td colSpan="5" className="px-6 py-8 text-center">
-                <div className="flex items-center justify-center">
-                  <RefreshCw className="w-6 h-6 animate-spin text-gray-400 mr-2" />
-                  <span className="text-gray-500">
-                    Loading donations...
-                  </span>
+            {activeTab === "donations" && (
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    All Donations
+                  </h3>
+                  <Button onClick={fetchDonations} disabled={loadingDonations}>
+                    {loadingDonations ? (
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                    )}
+                    Refresh
+                  </Button>
                 </div>
-              </td>
-            </tr>
-          ) : donationList.length === 0 ? (
-            <tr>
-              <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                <div className="flex flex-col items-center">
-                  <Heart className="w-12 h-12 text-gray-300 mb-2" />
-                  <span>No donations found.</span>
-                </div>
-              </td>
-            </tr>
-          ) : (
-            donationList.map((donation, index) => (
-              <motion.tr
-                key={donation._id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {donation.foodType || "—"}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {donation.quantity || "—"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {donation.location || "—"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      donation.status === "available"
-                        ? "bg-green-100 text-green-800"
-                        : donation.status === "requested"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {donation.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  <div className="font-medium">
-                    {donation.donor?.username || "N/A"}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {donation.donor?.email || ""}
-                  </div>
-                </td>
-              </motion.tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  </Card>
-)}
 
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Food Item
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Quantity
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Location
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Donor
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {loadingDonations ? (
+                        <tr>
+                          <td colSpan="5" className="px-6 py-8 text-center">
+                            <div className="flex items-center justify-center">
+                              <RefreshCw className="w-6 h-6 animate-spin text-gray-400 mr-2" />
+                              <span className="text-gray-500">
+                                Loading donations...
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : donationList.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="5"
+                            className="px-6 py-8 text-center text-gray-500"
+                          >
+                            <div className="flex flex-col items-center">
+                              <Heart className="w-12 h-12 text-gray-300 mb-2" />
+                              <span>No donations found.</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        donationList.map((donation, index) => (
+                          <motion.tr
+                            key={donation._id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {donation.foodType || "—"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {donation.quantity || "—"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {donation.location || "—"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  donation.status === "available"
+                                    ? "bg-green-100 text-green-800"
+                                    : donation.status === "requested"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-blue-100 text-blue-800"
+                                }`}
+                              >
+                                {donation.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              <div className="font-medium">
+                                {donation.donor?.username || "N/A"}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {donation.donor?.email || ""}
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
 
             {activeTab === "requests" && (
               <Card className="p-6">
@@ -679,83 +700,149 @@ const AdminDashboard = () => {
             )}
 
             {activeTab === "users" && (
-  <Card className="p-6">
-    <h3 className="text-xl font-semibold text-gray-800 mb-6">All Users</h3>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Member Since</th>
-            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Last Login</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {dashboardData?.users?.map((user, index) => (
-            <motion.tr
-              key={user._id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="hover:bg-gray-50"
-            >
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{user.username}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-700">{user.role}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </Card>
-)}
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6">
+                  All Users
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                          Username
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                          Email
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                          Role
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                          Member Since
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                          Last Login
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {dashboardData?.users?.map((user, index) => (
+                        <motion.tr
+                          key={user._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {user.username}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-700">
+                            {user.role}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.lastLogin
+                              ? new Date(user.lastLogin).toLocaleDateString()
+                              : "Never"}
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
 
-{activeTab === "analytics" && (
-  <Card className="p-6 mt-8">
-    <h3 className="text-xl font-semibold text-gray-800 mb-6">Trends</h3>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white p-4 rounded-xl shadow border">
-        <h4 className="text-md font-medium mb-4 text-gray-700">Donations Over Time</h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={dashboardData?.donationTrends || []}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="total" stroke="#3B82F6" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+            {/* {activeTab === "posts" && (
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    Community Posts
+                  </h3>
+                  <div className="space-x-2">
+                    <Button onClick={() => fetchPosts()}>All</Button>
+                    <Button onClick={() => fetchPosts("admin")}>
+                      Only Admin
+                    </Button>
+                    <Button onClick={() => fetchPosts("user")}>
+                      Only Users
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {postList.length === 0 ? (
+                    <p className="text-gray-500">No posts found.</p>
+                  ) : (
+                    postList.map((post, index) => (
+                      <Card key={post._id} className="p-4">
+                        <div className="text-gray-800 font-semibold">
+                          {post.title}
+                        </div>
+                        <div className="text-gray-600 text-sm">
+                          {post.content}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-2">
+                          Posted by: {post.author?.username || "Unknown"} (
+                          {post.author?.role})
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </Card>
+            )} */}
 
-      <div className="bg-white p-4 rounded-xl shadow border">
-        <h4 className="text-md font-medium mb-4 text-gray-700">New Users Per Month</h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={dashboardData?.userTrends || []}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="users" fill="#8B5CF6" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  </Card>
-)}
+            {activeTab === "analytics" && (
+              <Card className="p-6 mt-8">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6">
+                  Trends
+                </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white p-4 rounded-xl shadow border">
+                    <h4 className="text-md font-medium mb-4 text-gray-700">
+                      Donations Over Time
+                    </h4>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={dashboardData?.donationTrends || []}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="total"
+                          stroke="#3B82F6"
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
 
-
-
-
+                  <div className="bg-white p-4 rounded-xl shadow border">
+                    <h4 className="text-md font-medium mb-4 text-gray-700">
+                      New Users Per Month
+                    </h4>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={dashboardData?.userTrends || []}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="users" fill="#8B5CF6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Placeholder for other tabs */}
             {["settings"].includes(activeTab) && (

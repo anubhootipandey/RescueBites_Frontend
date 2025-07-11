@@ -36,16 +36,16 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                {/* <Link to="/about" className="text-gray-700 hover:text-gray-400 transition-colors"> */}
+                <Link to="/about" className="text-gray-700 hover:text-gray-400 transition-colors">
                   About Us
-                {/* </Link> */}
+                </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link to="/recipe-generator" className="text-gray-700 hover:text-gray-400 transition-colors">
                   Recipe Generator
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/rewards" className="text-gray-700 hover:text-gray-400 transition-colors">
                   Rewards
                 </Link>

@@ -87,18 +87,16 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {/* ✅ Show Profile only if not admin */}
-                {user.role !== "admin" && (
-                  <Link to="/profile">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                    </motion.button>
-                  </Link>
-                )}
+                {/* ✅ Profile link available for all roles now */}
+                <Link to="/profile">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                  </motion.button>
+                </Link>
               </>
             ) : (
               <div className="flex items-center space-x-3">
@@ -155,10 +153,8 @@ const Navbar = () => {
                   <>
                     <Link to={getDashboardPath()} onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600">Dashboard</Link>
 
-                    {/* ✅ Mobile Profile visible only to non-admin */}
-                    {user.role !== "admin" && (
-                      <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
-                    )}
+                    {/* ✅ Profile visible to all roles including admin */}
+                    <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
 
                     <button onClick={handleLogout} className="flex items-center space-x-2 text-red-600 hover:text-red-700">
                       <LogOut className="w-4 h-4" />
