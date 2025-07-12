@@ -196,7 +196,7 @@ Use Postman or Thunder Client:
 
 ### 🚀 Deployment Notes
 
-* Deploy backend using Render or Railway
+* Deploy backend using Render
 * MongoDB Atlas for live data
 * Use `.env` with secure secrets
 

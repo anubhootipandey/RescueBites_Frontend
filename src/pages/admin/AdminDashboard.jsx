@@ -12,12 +12,9 @@ import {
   X,
   RefreshCw,
   ChevronRight,
-  MessageCircle,
 } from "lucide-react";
 import {
   PieChart as RePieChart,
-  Pie,
-  Cell,
   Tooltip,
   BarChart,
   Bar,
@@ -48,39 +45,6 @@ const AdminDashboard = () => {
   const [loadingDonations, setLoadingDonations] = useState(false);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // const [postList, setPostList] = useState([]);
-
-//   const fetchPosts = async (role) => {
-//   try {
-//     const token = localStorage.getItem("token");
-//     const res = await api.get(`/posts${role ? `?role=${role}` : ""}`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     setPostList(res.data);
-//   } catch (err) {
-//     toast.error("Failed to fetch posts");
-//   }
-// };
-
-
-  //   const pieData = [
-  //   { name: "Pending", value: dashboardData?.requestStats?.pending || 0 },
-  //   { name: "Approved", value: dashboardData?.requestStats?.approved || 0 },
-  //   { name: "Rejected", value: dashboardData?.requestStats?.rejected || 0 },
-  // ];
-
-  // const COLORS = ["#FBBF24", "#10B981", "#EF4444"]; // yellow, green, red
-
-  // const barData = [
-  //   {
-  //     name: "Requests",
-  //     Pending: dashboardData?.requestStats?.pending || 0,
-  //     Approved: dashboardData?.requestStats?.approved || 0,
-  //     Rejected: dashboardData?.requestStats?.rejected || 0,
-  //   },
-  // ];
 
   // Fetch dashboard data ONCE when the component mounts
   useEffect(() => {
@@ -176,12 +140,6 @@ const AdminDashboard = () => {
       icon: PieChart,
       gradient: "from-indigo-500 to-blue-500",
     },
-    // {
-    //   id: "posts",
-    //   label: "Posts",
-    //   icon: MessageCircle,
-    //   gradient: "from-rose-500 to-pink-500",
-    // },
     {
       id: "settings",
       label: "Settings",
@@ -758,45 +716,6 @@ const AdminDashboard = () => {
                 </div>
               </Card>
             )}
-
-            {/* {activeTab === "posts" && (
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    Community Posts
-                  </h3>
-                  <div className="space-x-2">
-                    <Button onClick={() => fetchPosts()}>All</Button>
-                    <Button onClick={() => fetchPosts("admin")}>
-                      Only Admin
-                    </Button>
-                    <Button onClick={() => fetchPosts("user")}>
-                      Only Users
-                    </Button>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {postList.length === 0 ? (
-                    <p className="text-gray-500">No posts found.</p>
-                  ) : (
-                    postList.map((post, index) => (
-                      <Card key={post._id} className="p-4">
-                        <div className="text-gray-800 font-semibold">
-                          {post.title}
-                        </div>
-                        <div className="text-gray-600 text-sm">
-                          {post.content}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-2">
-                          Posted by: {post.author?.username || "Unknown"} (
-                          {post.author?.role})
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </Card>
-            )} */}
 
             {activeTab === "analytics" && (
               <Card className="p-6 mt-8">

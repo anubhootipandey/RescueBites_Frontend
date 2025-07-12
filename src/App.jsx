@@ -19,6 +19,7 @@ import AIRecipeGenerator from "./pages/AIRecipeGenerator";
 import Community from "./pages/community/Community";
 import GuestDashboard from "./pages/GuestDashboard";
 import FAQ from "./pages/FAQ";
+import ContactUs from "./pages/ContactUs";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/recipe-generator" element={<AIRecipeGenerator />} />
         <Route path="/community" element={<Community />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/contact-us" element={<ContactUs />} />
 
         <Route
           path="/guest"
