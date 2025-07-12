@@ -111,13 +111,28 @@ const Community = () => {
   };
 
   const handleLike = async (id) => {
-    try {
-      await api.post(`/community/${id}/like`);
-      fetchPosts();
-    } catch (err) {
-      console.error("Error liking post:", err);
-    }
-  };
+  try {
+    // Optimistically update UI
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === id
+          ? {
+              ...post,
+              likes: post.likes.includes(currentUser.id)
+                ? post.likes.filter((uid) => uid !== currentUser.id) // Unlike
+                : [...post.likes, currentUser.id], // Like
+            }
+          : post
+      )
+    );
+
+    // API call to backend
+    await api.post(`/community/${id}/like`);
+  } catch (err) {
+    console.error("Error liking post:", err);
+  }
+};
+
 
   const handleReply = async (postId) => {
     const content = replyContent[postId];
@@ -153,13 +168,33 @@ const Community = () => {
   };
 
   const handleLikeReply = async (postId, replyIdx) => {
-    try {
-      await api.post(`/community/${postId}/reply/${replyIdx}/like`);
-      fetchPosts();
-    } catch (err) {
-      console.error("Error liking reply:", err);
-    }
-  };
+  try {
+    // Optimistically update UI
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post._id !== postId) return post;
+
+        const updatedReplies = post.replies.map((reply, idx) => {
+          if (idx !== replyIdx) return reply;
+          return {
+            ...reply,
+            likes: reply.likes?.includes(currentUser.id)
+              ? reply.likes.filter((uid) => uid !== currentUser.id) // Unlike
+              : [...(reply.likes || []), currentUser.id], // Like
+          };
+        });
+
+        return { ...post, replies: updatedReplies };
+      })
+    );
+
+    // API call
+    await api.post(`/community/${postId}/reply/${replyIdx}/like`);
+  } catch (err) {
+    console.error("Error liking reply:", err);
+  }
+};
+
 
   const formatTimeAgo = (dateString) => {
     if (!dateString) return "Just now";

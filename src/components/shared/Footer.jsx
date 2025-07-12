@@ -45,6 +45,11 @@ const Footer = () => {
                   Recipe Generator
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="text-gray-700 hover:text-gray-400 transition-colors">
+                  FAQs
+                </Link>
+              </li>
               {/* <li>
                 <Link to="/rewards" className="text-gray-700 hover:text-gray-400 transition-colors">
                   Rewards

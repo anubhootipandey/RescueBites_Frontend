@@ -1,207 +1,419 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Users, Globe, Target, Award, Sparkles } from 'lucide-react';
+import { 
+  Heart, 
+  Users, 
+  Target, 
+  Zap,
+  Star,
+  HandHeart,
+  Building2,
+  Eye,
+  Lightbulb,
+  Smartphone,
+  Globe,
+  TrendingUp,
+  Rocket,
+  Shield
+} from 'lucide-react';
 import Card from '../components/ui/Card';
+import img0 from "../images/pic1.jpg";
+import img1 from "../images/pic2.jpg";
+import img3 from "../images/pic5.jpg";
+import img4 from "../images/pic6.jpg";
+import img5 from "../images/pic3.jpg";
 
-const About= () => {
-  const stats = [
-    { value: '40%', label: 'Food Wasted Globally', icon: Globe },
-    { value: '828M', label: 'People Face Hunger', icon: Users },
-    { value: '1.3B', label: 'Tons Food Wasted/Year', icon: Target },
+const About = () => {
+  const indianChallenges = [
+  {
+    title: "Food Waste in India",
+    value: "67 Million Tons",
+    description: "Food wasted annually in India - enough to feed 200 million people",
+    image: img4,
+    color: "text-red-600",
+    bgColor: "bg-red-100",
+    borderColor: "border-red-300"
+  },
+  {
+    title: "Hunger Crisis",
+    value: "224 Million",
+    description: "Indians face hunger daily while tons of food go to waste",
+    image: img3,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    borderColor: "border-orange-300"
+  },
+  {
+    title: "Malnutrition Among Children",
+    value: "35% Under 5",
+    description: "Nearly 35% of children under 5 in India are stunted due to poor nutrition (NFHS-5)",
+    image: img0,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+    borderColor: "border-green-300"
+  }
+];
+
+  const testimonials = [
+    {
+      name: "Sanjana Mehta",
+      role: "Volunteer Coordinator, Helping Hands NGO",
+      content: "We often struggled to find timely food donations for the communities we support. But since using RescueBites, things have changed. It's not just an app — it's a powerful tool for impact.",
+      initials: "SM",
+      avatarColor: "bg-red-500",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200"
+    },
+    {
+      name: "Versha Gautam",
+      role: "Donor",
+      content: "Working on RescueBites has been a transformative journey—not just in terms of coding and technical growth, but in understanding how technology can truly make a social impact.",
+      initials: "VG",
+      avatarColor: "bg-orange-500",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200"
+    },
+    {
+      name: "Riddhi_sahu",
+      role: "Donor",
+      content: "This platform tackles two of society's pressing issues—food wastage and hunger—by building an efficient, real-time bridge between surplus food providers and those in need.😊😊",
+      initials: "RS",
+      avatarColor: "bg-yellow-500",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200"
+    }
   ];
 
-  const features = [
+  const groundRealities = [
     {
-      icon: Heart,
-      title: 'Community-Driven',
-      description: 'Built by and for communities who care about reducing food waste and helping neighbors.'
+      title: "Daily Struggle for Food",
+      image: img1,
+      description: "Families searching for their next meal in urban areas"
     },
     {
-      icon: Sparkles,
-      title: 'AI-Powered',
-      description: 'Smart recipe generation helps turn leftover ingredients into delicious meals.'
+      title: "Street Life Reality",
+      image: img3,
+      description: "Homeless individuals seeking shelter and sustenance"
     },
     {
-      icon: Award,
-      title: 'Rewarding Experience',
-      description: 'Earn points and badges for every positive action you take on the platform.'
+      title: "Community Kitchens",
+      image: img5,
+      description: "Shared meals bringing hope to struggling families"
+    },
+    {
+  title: "School Children Without Midday Meals",
+  image: img4,
+  description: "Millions of children depend on school meals — disruptions leave many hungry"
+}
+
+  ];
+
+  const futureFeatures = [
+    {
+      icon: Smartphone,
+      title: "Smart Mobile App",
+      description: "AI-powered notifications and real-time matching for instant food rescue",
+      color: "text-yellow-500",
+      bgColor: "bg-yellow-100",
+      borderColor: "border-yellow-200"
+    },
+    {
+      icon: Shield,
+      title: "Corporate Partnerships",
+      description: "Collaboration with restaurants, hotels, and food companies for systematic waste reduction",
+      color: "text-orange-500",
+      bgColor: "bg-orange-100",
+      borderColor: "border-orange-200"
+    },
+    {
+      icon: Rocket,
+      title: "Community Rewards",
+      description: "Gamification and recognition system to encourage sustainable donation habits",
+      color: "text-red-500",
+      bgColor: "bg-red-100",
+      borderColor: "border-red-200"
     }
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-100 via-white to-amber-100 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-orange-50">
+      {/* Hero Section - What We Are */}
+      <section className="bg-orange-50 py-20 relative overflow-hidden">
+        <div className="absolute top-10 right-10 w-96 h-96 bg-yellow-200 rounded-full opacity-20"></div>
+        <div className="absolute bottom-10 left-10 w-64 h-64 bg-red-200 rounded-full opacity-20"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              About{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-amber-600 bg-clip-text text-transparent">
+            <div className="inline-flex items-center bg-white px-6 py-3 rounded-full shadow-sm mb-8">
+              <Heart className="w-5 h-5 text-red-500 mr-2" />
+              <span className="font-medium text-gray-700">About RescueBites</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+              We Are{' '}
+              <span className="text-orange-500">
                 RescueBites
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-              We're on a mission to tackle food waste while building stronger, more connected communities. 
-              Every rescued meal is a step toward a more sustainable future.
+            <p className="text-2xl md:text-3xl mb-12 max-w-4xl mx-auto font-light text-gray-600 leading-relaxed">
+              From overflowing plates to empty hands, we weave a chain of compassion—feeding hearts, restoring dignity, and nourishing millions across India.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Problem Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              The Food Waste Crisis
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              While millions face hunger, billions of tons of food are wasted annually. 
-              We believe technology can bridge this gap and create positive change.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="text-center p-8">
-                  <stat.icon className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-                  <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                  <div className="text-gray-600">{stat.label}</div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Our Solution
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              RescueBites connects food donors with those who need it most, creating a 
-              win-win situation for everyone involved.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card hover className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <feature.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Our Mission
-              </h2>
-              <div className="space-y-6">
-                <p className="text-lg text-gray-600">
-                  To create a world where no food goes to waste while people go hungry. 
-                  We believe that by connecting communities through technology, we can 
-                  make a meaningful impact on both food security and environmental sustainability.
-                </p>
-                <p className="text-lg text-gray-600">
-                  Every meal rescued through RescueBites represents not just food saved from waste, 
-                  but also a connection made between community members, a step toward sustainability, 
-                  and hope for those in need.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <img
-                src="https://images.pexels.com/photos/6646918/pexels-photo-6646918.jpeg"
-                alt="Community food sharing"
-                className="rounded-2xl shadow-xl"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-amber-500/20 rounded-2xl"></div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-amber-600">
+      {/* NEW: Ground Reality Section */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Our Values
+            <div className="inline-flex items-center bg-red-100 px-6 py-3 rounded-full mb-8">
+              <Eye className="w-5 h-5 text-red-600 mr-2" />
+              <span className="font-medium text-red-700">Ground Reality</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
+              The Reality We <span className="text-red-500">Witness</span>
             </h2>
-            <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
-              The principles that guide everything we do
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Every day, millions of Indians face the harsh reality of hunger and poverty. These are their stories.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {groundRealities.map((reality, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group"
+              >
+                <Card className="overflow-hidden h-full hover:shadow-2xl transition-all duration-500 group-hover:scale-105">
+                  <div className="relative h-48">
+                    <img
+                      src={reality.image}
+                      alt={reality.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">{reality.title}</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">{reality.description}</p>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* The Challenge Section */}
+      <section className="py-20 bg-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center bg-red-100 px-6 py-3 rounded-full mb-8">
+              <Target className="w-5 h-5 text-red-600 mr-2" />
+              <span className="font-medium text-red-700">The Challenge</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
+              The Challenge in India
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Despite abundant resources, millions of Indians lack access to basic food and clean water
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {indianChallenges.map((challenge, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                viewport={{ once: true }}
+              >
+                <div className={`overflow-hidden hover:shadow-xl transition-all duration-300 rounded-3xl bg-white border-2 ${challenge.borderColor}`}>
+                  <div className="h-48">
+                    <img
+                      src={challenge.image}
+                      alt={challenge.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className={`p-8 ${challenge.bgColor}`}>
+                    <div className={`text-4xl font-bold mb-3 ${challenge.color} text-center`}>{challenge.value}</div>
+                    <div className="text-xl font-semibold text-gray-900 mb-4 text-center">{challenge.title}</div>
+                    <p className="text-gray-700 leading-relaxed text-center">{challenge.description}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* What We Do Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center bg-orange-100 px-6 py-3 rounded-full mb-8">
+              <Zap className="w-5 h-5 text-orange-600 mr-2" />
+              <span className="font-medium text-orange-700">What We Do</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
+              Our Mission
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              We connect generous donors with NGOs, communities, and individuals in need of food and water
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { title: 'Sustainability', description: 'Protecting our planet for future generations' },
-              { title: 'Community', description: 'Building connections that strengthen neighborhoods' },
-              { title: 'Accessibility', description: 'Making our platform available to everyone' },
-              { title: 'Innovation', description: 'Using technology to solve real-world problems' }
-            ].map((value, index) => (
+              { icon: HandHeart, title: "Donate", desc: "Share surplus food with those in need", color: "text-red-500", bgColor: "bg-red-100" },
+              { icon: Users, title: "Request", desc: "Connect individuals and families with available resources", color: "text-orange-500", bgColor: "bg-orange-100" },
+              { icon: Building2, title: "Support NGOs", desc: "Help organizations distribute aid efficiently", color: "text-yellow-500", bgColor: "bg-yellow-100" },
+              { icon: Heart, title: "Build Community", desc: "Strengthen neighborhoods through giving", color: "text-green-500", bgColor: "bg-green-100" }
+            ].map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center"
               >
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-white mb-3">{value.title}</h3>
-                  <p className="text-blue-100">{value.description}</p>
+                <div className={`p-8 text-center hover:shadow-xl transition-all duration-300 border-2 border-gray-100 hover:border-gray-200 rounded-3xl bg-white`}>
+                  <div className={`w-16 h-16 ${item.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+                    <item.icon className={`w-8 h-8 ${item.color}`} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{item.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center bg-yellow-100 px-6 py-3 rounded-full mb-8">
+              <Star className="w-5 h-5 text-yellow-600 mr-2" />
+              <span className="font-medium text-yellow-700">Testimonials</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
+              Stories of Impact
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Hear from donors, NGOs, and volunteers who are making a difference through RescueBites
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className={`p-8 hover:shadow-xl transition-all duration-300 rounded-3xl border-2 ${testimonial.borderColor} ${testimonial.bgColor}`}>
+                  <div className="flex items-center mb-6">
+                    <div className={`w-16 h-16 rounded-2xl ${testimonial.avatarColor} flex items-center justify-center mr-4 border-2 border-white shadow-md`}>
+                      <span className="text-white font-bold text-lg">{testimonial.initials}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
+                      <p className="text-gray-600">{testimonial.role}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-800 italic leading-relaxed font-medium">"{testimonial.content}"</p>
+                  <div className="flex mt-6">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Future Additions */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center bg-orange-100 px-6 py-3 rounded-full mb-8">
+              <Rocket className="w-5 h-5 text-orange-600 mr-2" />
+              <span className="font-medium text-orange-700">Future Additions</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
+              The Future of <span className="text-orange-500">Food Rescue</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+              Innovation never stops. We're constantly evolving RescueBites to create a more connected, efficient, and impactful platform for social change.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {futureFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group"
+              >
+                <div className={`p-8 hover:shadow-2xl transition-all duration-500 rounded-3xl bg-white border-2 ${feature.borderColor} group-hover:scale-105 group-hover:-translate-y-2`}>
+                  <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-orange-600 transition-colors duration-300">{feature.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <span className="text-sm font-medium text-orange-500 group-hover:text-orange-700 transition-colors duration-300">Coming Soon</span>
+                  </div>
                 </div>
               </motion.div>
             ))}
