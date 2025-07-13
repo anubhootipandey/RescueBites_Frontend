@@ -10,10 +10,10 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-amber-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg flex items-center justify-center">
                 <Heart className="w-5 h-5" />
               </div>
-              <span className="text-xl font-bold">RescueBites</span>
+              <span className="text-xl text-orange-600 font-bold">RescueBites</span>
             </div>
             <p className="text-gray-700 mb-4">
               Fighting food waste through community-driven food sharing and donation. 

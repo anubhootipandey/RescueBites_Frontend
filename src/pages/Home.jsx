@@ -55,7 +55,7 @@ if (user) {
   else donateNowLink = "/dashboard"; // redirect others to a general dashboard
 }
 
-let getStartedText = "Get Started";
+let getStartedText = "Join Mission";
 
 if (user) {
   switch (user.role) {
@@ -412,8 +412,7 @@ if (user) {
                 Their <span className="text-yellow-200">Big Hope</span>
               </h2>
               <p className="text-xl text-white/90 mb-8 leading-relaxed">
-                Every meal you share, every rupee you donate, every moment you volunteer 
-                creates ripples of change in someone's life. Be the reason someone smiles today.
+                Every meal you share, creates ripples of change in someone's life. Be the reason someone smiles today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to={donateNowLink}>
@@ -423,12 +422,6 @@ if (user) {
   </button>
 </Link>
 
-                {/* <Link to="/volunteer">
-                  <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-orange-600 transition-all duration-300 flex items-center justify-center">
-                    <Users className="w-6 h-6 mr-3" />
-                    Volunteer
-                  </button>
-                </Link> */}
               </div>
             </motion.div>
 

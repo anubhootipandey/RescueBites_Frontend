@@ -114,8 +114,8 @@ const RecipientDashboard = () => {
 
   try {
     await requestFood({
-      neededItems: donation.foodType, // correctly mapped
-      address: donation.location,     // correctly mapped
+      neededItems: donation.foodType, 
+      address: donation.location,     
       donationId: donation._id,
     });
     toast.success("🎉 Donation request submitted!");
@@ -126,7 +126,6 @@ const RecipientDashboard = () => {
     console.error(err);
   }
 };
-
 
 
   const renderDonationsTab = () => (
@@ -308,7 +307,6 @@ const RecipientDashboard = () => {
                 </p>
               </div>
 
-              {/* Enhanced Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8 lg:mb-10">
                 <Card className="p-4 lg:p-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-pink-500">
                   <div className="flex justify-between items-start">

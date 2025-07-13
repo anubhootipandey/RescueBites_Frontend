@@ -85,13 +85,6 @@ const AIRecipeGenerator = () => {
               Turn your leftover ingredients into <span className="font-bold text-orange-600">amazing recipes</span> with our AI chef. 
               No more food waste, just delicious possibilities!
             </p>
-            
-            {/* <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-orange-400 fill-current" />
-              ))}
-              <span className="ml-2 text-sm text-gray-600 font-medium">4.9/5 from 10,000+ home chefs</span>
-            </div> */}
 
             {/* Feature Pills */}
             <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
