@@ -1,26 +1,41 @@
 import React, { useState } from 'react';
-import { ChefHat, Sparkles, Clock, Users, Utensils, ArrowRight, Star, Heart, Zap, Award, TrendingUp } from 'lucide-react';
+import { ChefHat, Sparkles, Clock, Users, Utensils, ArrowRight, Star, Heart, Zap, Award, TrendingUp, AlertCircle } from 'lucide-react';
 import api from '../utils/api';
 
 const AIRecipeGenerator = () => {
   const [ingredients, setIngredients] = useState('');
   const [recipe, setRecipe] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleGenerate = async () => {
     if (!ingredients.trim()) {
-      alert('Please enter some ingredients first!');
+      setError('Please enter some ingredients first!');
       return;
     }
 
     setLoading(true);
+    setError('');
+    
     try {
+      const ingredientList = ingredients.split(',').map(item => item.trim()).filter(item => item.length > 0);
+      
       const res = await api.post('/recipes/generate', {
-        ingredients: ingredients.split(',').map(item => item.trim()).filter(item => item.length > 0)
+        ingredients: ingredientList
       });
+      
       setRecipe(res.data.recipe);
     } catch (err) {
-      alert('Failed to generate recipe. Please try again.');
+      console.error('Recipe generation error:', err);
+      let errorMessage = 'Failed to generate recipe. Please try again.';
+      
+      if (err.response) {
+        errorMessage = err.response.data.message || errorMessage;
+      } else if (err.request) {
+        errorMessage = 'Unable to connect to the server. Please check if the backend is running.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -96,6 +111,20 @@ const AIRecipeGenerator = () => {
               ))}
             </div>
           </div>
+
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <p className="text-red-700 text-sm">{error}</p>
+              <button
+                onClick={() => setError('')}
+                className="ml-auto text-red-500 hover:text-red-700 text-sm font-medium"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Main Content Card */}
           <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden hover:shadow-3xl transition-all duration-500">
