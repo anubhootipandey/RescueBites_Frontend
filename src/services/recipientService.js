@@ -10,3 +10,6 @@ export const requestFood = (payload) =>
 export const getAvailableDonations = () => {
   return api.get('/recipient/available-donations');
 };
+
+export const requestDonation = (donationId) =>
+  api.put(`/recipient/claim-donation/${donationId}`);

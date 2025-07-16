@@ -133,6 +133,26 @@ const [showConfetti, setShowConfetti] = useState(false);
   }
 };
 
+const handleMarkComplete = async (donationId) => {
+  try {
+    await api.patch(`/donor/mark-donation-complete/${donationId}`);
+    alert("Donation marked as completed!");
+
+    // Update local state immediately
+    setMyDonations((prev) =>
+      prev.map((donation) =>
+        donation._id === donationId
+          ? { ...donation, status: "completed" }
+          : donation
+      )
+    );
+  } catch (err) {
+    console.error("Failed to mark donation as completed:", err);
+    alert("Failed to update status");
+  }
+};
+
+
 
   if (!data) {
     return (
@@ -757,7 +777,6 @@ const [showConfetti, setShowConfetti] = useState(false);
 </div>
   </Card>
 )}
-
 
 
       </main>

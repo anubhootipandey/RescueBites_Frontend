@@ -19,6 +19,7 @@ import { getAvailableDonations, getRecipientDashboard } from "../../services/rec
 import toast from "react-hot-toast";
 import RequestFoodForm from "../recipient/RequestFoodForm";
 import { requestFood } from "../../services/recipientService";
+import axios from "axios";
 
 
 const RecipientDashboard = () => {
@@ -77,7 +78,7 @@ const RecipientDashboard = () => {
     if (location.state?.newRequest) {
       toast.success("🎉 Your food request has been submitted!");
       window.history.replaceState({}, document.title);
-      setTimeout(fetchDashboard, 1000); // ✅ Wait to ensure backend stores the request
+      setTimeout(fetchDashboard, 1000); // Wait to ensure backend stores the request
     }
   }, [location]);
 
@@ -96,49 +97,75 @@ const RecipientDashboard = () => {
 
   const closeSidebar = () => setSidebarOpen(false);
 
- const handleRequestDonation = async (donation) => {
-  console.log("Selected donation:", donation);
+// const handleRequestDonation = async (donation) => {
+//   if (!donation?.foodType || !donation?.location) return;
 
-  if (!donation?.foodType || !donation?.location) {
-    console.warn("Invalid donation payload:", donation);
-    return;
-  }
+//   const payload = {
+//     neededItems: donation.foodType,
+//     address: donation.location,
+//     donationId: donation._id,
+//   };
 
-  const payload = {
-    neededItems: donation.foodType,
-    address: donation.location,
-    donationId: donation._id,
-  };
+//   try {
+//     await requestFood(payload);
+//     toast.success("🎉 Donation request submitted!");
 
-  console.log("Payload to send:", payload); // For debugging
+//     setDonations((prevDonations) =>
+//   prevDonations.map((d) =>
+//     d._id === donation._id ? { ...d, status: "requested" } : d
+//   )
+// );
 
+
+//     fetchDashboard(); 
+//   } catch (err) {
+//     toast.error("Failed to request donation");
+//     console.error(err);
+//   }
+// };
+
+const handleClaimDonation = async (donationId) => {
   try {
-    await requestFood({
-      neededItems: donation.foodType, 
-      address: donation.location,     
-      donationId: donation._id,
+    await axios.post(`/api/recipient/claim-donation/${donationId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
-    toast.success("🎉 Donation request submitted!");
-    fetchDashboard();
-    fetchDonations();
-  } catch (err) {
+    toast.success("Donation successfully requested!");
+    // Optional: Re-fetch donations to update UI
+  } catch (error) {
     toast.error("Failed to request donation");
-    console.error(err);
+    console.error(error);
   }
 };
 
 
-  const renderDonationsTab = () => (
-    <div>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Available Donations
-      </h2>
-      {loadingDonations ? (
-        <p className="text-gray-500">Loading donations...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {donations.length > 0 ? (
-            donations.map((donation) => (
+
+const renderDonationsTab = () => (
+  <div>
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">
+      Available Donations
+    </h2>
+
+    {loadingDonations ? (
+      <p className="text-gray-500">Loading donations...</p>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {donations.length > 0 ? (
+          donations.map((donation) => {
+            const createdAt = new Date(donation.createdAt);
+            const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+            const now = new Date();
+            const timeLeftMs = expiresAt - now;
+
+            const hoursLeft = Math.floor(timeLeftMs / (1000 * 60 * 60));
+            const minutesLeft = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+            const timeLeftString =
+              timeLeftMs > 0
+                ? `${hoursLeft}h ${minutesLeft}m left`
+                : "⛔ Expired (will be removed)";
+
+            return (
               <Card
                 key={donation._id}
                 className="p-5 border-l-4 border-orange-500 shadow"
@@ -152,24 +179,40 @@ const RecipientDashboard = () => {
                 <p className="text-sm text-gray-600">
                   Donor: {donation.donorName || donation.donor?.name}
                 </p>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-gray-600">
                   Location: {donation.location}
                 </p>
+                <p className="text-xs text-red-500 font-medium mt-2 mb-3">
+                  ⏳ {timeLeftString}
+                </p>
+
                 <button
-                  onClick={() => handleRequestDonation(donation)}
-                  className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-                >
-                  Request This
-                </button>
+  onClick={() => handleClaimDonation(donation._id)}
+  className={`px-4 py-2 text-white rounded transition-all duration-200 ${
+    donation.status === "requested" || timeLeftMs <= 0
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-orange-500 hover:bg-orange-600"
+  }`}
+  disabled={donation.status === "requested" || timeLeftMs <= 0}
+>
+  {donation.status === "requested"
+    ? "Requested"
+    : timeLeftMs <= 0
+    ? "Expired"
+    : "Request This"}
+</button>
+
               </Card>
-            ))
-          ) : (
-            <p className="text-gray-500">No donations available right now.</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
+            );
+          })
+        ) : (
+          <p className="text-gray-500">No donations available right now.</p>
+        )}
+      </div>
+    )}
+  </div>
+);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">

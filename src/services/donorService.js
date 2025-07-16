@@ -12,8 +12,14 @@ const getMyDonations = async () =>
   await api.get('/donor/my-donations');
 
 const deleteDonation = (id) => {
-  return api.delete(`/donor/donate/${id}`);
+  const token = localStorage.getItem("token");
+  return api.delete(`/donor/donate/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
+
 
 const updateDonationById = (id, updatedData, token) => {
   return axios.put(`/api/donor/donate/${id}`, updatedData, {
