@@ -13,3 +13,6 @@ export const getAvailableDonations = () => {
 
 export const requestDonation = (donationId) =>
   api.put(`/recipient/claim-donation/${donationId}`);
+
+export const claimDonation = (donationId) =>
+  api.post(`/recipient/claim-donation/${donationId}`);

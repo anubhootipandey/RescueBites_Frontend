@@ -18,7 +18,7 @@ import Card from "../ui/Card";
 import { getAvailableDonations, getRecipientDashboard } from "../../services/recipientService";
 import toast from "react-hot-toast";
 import RequestFoodForm from "../recipient/RequestFoodForm";
-import { requestFood } from "../../services/recipientService";
+import { claimDonation } from "../../services/recipientService";
 import axios from "axios";
 
 
@@ -126,18 +126,18 @@ const RecipientDashboard = () => {
 
 const handleClaimDonation = async (donationId) => {
   try {
-    await axios.post(`/api/recipient/claim-donation/${donationId}`, {}, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    toast.success("Donation successfully requested!");
-    // Optional: Re-fetch donations to update UI
+    await claimDonation(donationId);
+    toast.success("🎉 Donation successfully requested!");
+
+    // Optional: Refresh donations and dashboard
+    fetchDonations();
+    fetchDashboard();
   } catch (error) {
-    toast.error("Failed to request donation");
+    toast.error("❌ Failed to request donation");
     console.error(error);
   }
 };
+
 
 
 

@@ -41,6 +41,8 @@ import Button from "../ui/Button";
 import api from "../../utils/api";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use"; // Optional to handle dynamic window
+import MapComponent from "../MapComponent";
+import { toast } from "react-toastify";
 
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -64,18 +66,30 @@ const [showConfetti, setShowConfetti] = useState(false);
     { id: "rewards", label: "My Rewards", icon: Award },
   ];
 
+ const fetchApprovedRequests = async () => {
+    try {
+      const res = await api.get("/donor/approved-requests");
+      console.log("Approved Requests Response:", res.data);
+      setApprovedRequests(res.data.approvedRequests || []);
+    } catch (err) {
+      console.error("Failed to fetch approved requests", err);
+    }
+  };
+
+  // Initial fetch
   useEffect(() => {
-    const fetchApprovedRequests = async () => {
-      try {
-        const res = await api.get("/donor/approved-requests");
-        console.log("Approved Requests Response:", res.data);
-        setApprovedRequests(res.data.approvedRequests || []);
-      } catch (err) {
-        console.error("Failed to fetch approved requests", err);
-      }
-    };
     fetchApprovedRequests();
   }, []);
+
+  // Polling every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchApprovedRequests();
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval); // cleanup
+  }, []);
+
 
   useEffect(() => {
   async function fetchAllData() {
@@ -83,7 +97,7 @@ const [showConfetti, setShowConfetti] = useState(false);
       const dashboardRes = await getDashboardData();
       setData(dashboardRes.data);
 
-      // 🎉 If rewards increased, show confetti
+      //  If rewards increased, show confetti
       const previousRewards = JSON.parse(localStorage.getItem("rewards")) || [];
       const currentRewards = dashboardRes.data.rewards || [];
 
@@ -100,21 +114,42 @@ const [showConfetti, setShowConfetti] = useState(false);
       console.error("Dashboard Error:", err);
     }
   }
+  
   fetchAllData();
 }, [token]);
 
+useEffect(() => {
+  async function fetchData() {
+    const myDonationsRes = await getMyDonations(token);
+    const previousDonations = JSON.parse(localStorage.getItem("donations")) || [];
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this donation?");
-    if (!confirm) return;
-    try {
-      await deleteDonation(id);
-      setMyDonations((prev) => prev.filter((d) => d._id !== id));
-    } catch (err) {
-      console.error("Delete failed:", err);
-      alert("Failed to delete donation.");
+    // Compare status updates
+    const newlyRequested = myDonationsRes.data.filter(
+      (d) => d.status === "requested" &&
+        !previousDonations.find((p) => p._id === d._id && p.status === "requested")
+    );
+
+    if (newlyRequested.length > 0) {
+      toast.info("One of your donations was claimed!");
     }
-  };
+
+    localStorage.setItem("donations", JSON.stringify(myDonationsRes.data));
+    setMyDonations(myDonationsRes.data);
+  }
+
+  fetchData();
+}, []);
+
+
+const refreshDonations = async () => {
+  try {
+    const myDonationsRes = await getMyDonations(token);
+    setMyDonations(myDonationsRes.data);
+  } catch (err) {
+    console.error("Failed to refresh donations", err);
+  }
+};
+
 
   const handleSendFood = async (requestId) => {
   try {
@@ -137,18 +172,25 @@ const handleMarkComplete = async (donationId) => {
   try {
     await api.patch(`/donor/mark-donation-complete/${donationId}`);
     alert("Donation marked as completed!");
-
-    // Update local state immediately
-    setMyDonations((prev) =>
-      prev.map((donation) =>
-        donation._id === donationId
-          ? { ...donation, status: "completed" }
-          : donation
-      )
-    );
+    refreshDonations(); //  add this
   } catch (err) {
     console.error("Failed to mark donation as completed:", err);
     alert("Failed to update status");
+  }
+};
+
+const handleSendFoodToRecipient = async (donationId) => {
+  try {
+    await api.put(`/donor/send-food/${donationId}`); // create this route if not done
+    toast.success("Food marked as sent!");
+    setMyDonations((prev) =>
+      prev.map((donation) =>
+        donation._id === donationId ? { ...donation, status: "completed" } : donation
+      )
+    );
+  } catch (err) {
+    console.error("Failed to send food:", err);
+    toast.error("Failed to send food");
   }
 };
 
@@ -539,18 +581,21 @@ const handleMarkComplete = async (donationId) => {
                                 {donation.foodType}
                               </h4>
                             </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                <span className="font-medium">Quantity:</span>
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                                  {donation.quantity}kg
-                                </span>
-                              </div>
-                              <div className="flex items-start space-x-2 text-sm text-gray-600">
-                                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                <span>{donation.location}</span>
-                              </div>
-                            </div>
+                           <div className="space-y-2">
+  <div className="flex items-center space-x-2 text-sm text-gray-600">
+    <span className="font-medium">Quantity:</span>
+    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+      {donation.quantity}kg
+    </span>
+  </div>
+  <div className="flex items-start space-x-2 text-sm text-gray-600">
+    <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+    <span>{donation.location}</span>
+  </div>
+
+  <MapComponent location={donation.location} />
+</div>
+
                           </div>
                         </div>
 
@@ -559,14 +604,6 @@ const handleMarkComplete = async (donationId) => {
                             <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(donation.status)}`}>
                               {donation.status?.charAt(0).toUpperCase() + donation.status?.slice(1) || 'Available'}
                             </span>
-                            
-                            <button
-                              onClick={() => handleDelete(donation._id)}
-                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 group"
-                              title="Delete donation"
-                            >
-                              <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                            </button>
                           </div>
                         </div>
 
