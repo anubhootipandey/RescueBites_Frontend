@@ -12,7 +12,9 @@ import {
   ArrowLeft,
   Send,
   Scale,
-  MapPinIcon
+  MapPinIcon,
+  PhoneCall,
+  Phone
 } from 'lucide-react';
 import { addDonation } from '../../services/donorService';
 import Card from '../ui/Card';
@@ -191,6 +193,32 @@ const AddDonationForm = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   Estimate the total weight or number of items
+                </p>
+              </div>
+
+               {/* Contact Field */}
+              <div>
+                <label htmlFor="foodType" className="block text-sm font-semibold text-gray-700 mb-3">
+                  <Phone className="w-4 h-4 inline mr-2" />
+                  Mobile Number *
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="numType"
+                    name="numType"
+                    value={formData.numype}
+                    onChange={handleChange}
+                    placeholder="e.g., 91+"
+                    required
+                    className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                    <PhoneCall className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Provide valid contact number
                 </p>
               </div>
 
