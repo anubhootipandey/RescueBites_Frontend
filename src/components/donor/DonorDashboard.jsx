@@ -577,6 +577,14 @@ useEffect(() => {
 
   <MapComponent location={donation.location} />
 </div>
+{donation.contactNumber && (
+  <div className="flex items-center space-x-2 text-sm text-gray-600">
+    <span className="font-medium">📞 Contact:</span>
+    <a href={`tel:${donation.contactNumber}`} className="text-blue-600 hover:underline">
+      {donation.contactNumber}
+    </a>
+  </div>
+)}
 
                           </div>
                         </div>

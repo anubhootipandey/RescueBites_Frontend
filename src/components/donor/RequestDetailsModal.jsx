@@ -25,6 +25,7 @@ const RequestDetailsModal = ({ donation, onClose, onSend }) => {
           <p><strong>Quantity:</strong> {donation.quantity} kg</p>
           <p><strong>Location:</strong> {donation.location}</p>
           <p><strong>Status:</strong> {donation.status}</p>
+          <p className="mb-2"><strong>Contact Number:</strong> {selectedDonation.contactNumber}</p>
         </div>
 
         {donation.status === "requested" && (

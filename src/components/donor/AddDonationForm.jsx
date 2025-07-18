@@ -28,6 +28,7 @@ const AddDonationForm = () => {
     foodType: '',
     quantity: '',
     location: '',
+    contactNumber: '', 
   });
 
   const [loading, setLoading] = useState(false);
@@ -204,13 +205,14 @@ const AddDonationForm = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type="number"
-                    id="numType"
-                    name="numType"
-                    value={formData.numype}
-                    onChange={handleChange}
-                    placeholder="e.g., 91+"
-                    required
+  type="number"
+  id="contactNumber"
+  name="contactNumber" 
+  value={formData.contactNumber}
+  onChange={handleChange}
+  placeholder="e.g., +91"
+  required
+
                     className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-4">
