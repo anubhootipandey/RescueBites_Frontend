@@ -12,7 +12,6 @@ Welcome to the **RescueBites**! This RESTful API powers the RescueBites food don
 * **MongoDB + Mongoose** (NoSQL Database)
 * **JWT Auth + Bcrypt** (Authentication & Security)
 * **OpenAI API** (Recipe Generator)
-* **Cloudinary (Optional)** (Image Uploads)
 * **Deployed on**: Render
 
 ---
@@ -95,7 +94,7 @@ createdAt: Date
 
 ### 📦 Recipes (recipeController.js)
 
-Generates recipes based on user input using OpenAI.
+Generates recipes based on user input using GeminiAI.
 
 #### Endpoints:
 
@@ -104,7 +103,7 @@ Generates recipes based on user input using OpenAI.
 
 #### Features:
 
-* AI integration (OpenAI API)
+* AI integration (GeminiAI API)
 * Saves prompt & result in DB
 
 #### Recipe Schema:
@@ -161,8 +160,8 @@ Admin controls dashboard analytics, users, and donation stats.
 
 ### 🔐 Middleware
 
-* **auth.js** – Verifies JWT, adds `req.user`
-* **roles.js** – Restricts access based on role
+* **authMiddleware.js** – Verifies JWT, adds `req.user`
+* **rolesMiddleware.js** – Restricts access based on role
 * **error.js** – (optional) Express error handler
 
 ---
@@ -170,7 +169,6 @@ Admin controls dashboard analytics, users, and donation stats.
 ### 🔧 Utils
 
 * `generateToken.js` – Signs a JWT with expiration
-* `openaiHelper.js` – Sends POST to OpenAI with prompt
 
 ---
 
@@ -180,7 +178,7 @@ Admin controls dashboard analytics, users, and donation stats.
 PORT=5000
 MONGO_URI=mongodb+srv://...
 JWT_SECRET=your_jwt_secret
-OPENAI_API_KEY=your_openai_key
+GEMINIAI_API_KEY=your_geminiai_key
 ```
 
 ---
@@ -214,7 +212,7 @@ Use Postman or Thunder Client:
 * **Framer Motion** (UI animations)
 * **Axios** (API requests)
 * **React Router DOM** (Routing)
-* **React Hook Form + Yup** (Form validation)
+* **React Hook Form** (Form validation)
 * **React Context API** (Auth & global state)
 * **Chart.js / Recharts** (Stats visualization)
 * **Leaflet.js** (Location-based donation filtering)
@@ -258,7 +256,7 @@ frontend/
 ✅ All data must come from real user input or backend API calls:
 
 * Food donations are submitted and fetched via API
-* Recipes are generated dynamically from OpenAI API
+* Recipes are generated dynamically from GeminiAI API
 * Reward system updates based on user activity
 * No static JSON, hardcoded lists, or fake responses allowed
 
@@ -273,7 +271,7 @@ frontend/
 
 #### Login.jsx / Signup.jsx
 
-* React Hook Form + Yup for validation
+* React Hook Form for validation
 * Auth request to `/api/auth/*`
 
 #### Dashboard.jsx (Role-based)
@@ -295,7 +293,7 @@ frontend/
 #### Recipes.jsx
 
 * Input: ingredients as comma-separated values
-* Output: real-time recipe from AI (OpenAI API)
+* Output: real-time recipe from AI (GeminiAI API)
 
 #### Rewards.jsx
 
@@ -313,7 +311,7 @@ frontend/
 
 ```
 VITE_API_URL=https://rescuebites-backend.onrender.com/api
-VITE_OPENAI_API_KEY=your_openai_key
+VITE_GEMINIAI_API_KEY=your_geminiai_key
 ```
 
 ---
