@@ -11,7 +11,7 @@ Welcome to the **RescueBites**! This RESTful API powers the RescueBites food don
 * **Node.js + Express.js** (REST API)
 * **MongoDB + Mongoose** (NoSQL Database)
 * **JWT Auth + Bcrypt** (Authentication & Security)
-* **OpenAI API** (Recipe Generator)
+* **GeminiAI API** (Recipe Generator)
 * **Deployed on**: Render
 
 ---
@@ -25,7 +25,7 @@ backend/
 ├── middleware/          # Auth, error handlers, role checks
 ├── models/              # Mongoose schemas
 ├── routes/              # API route definitions
-├── utils/               # Helper functions (JWT, OpenAI)
+├── utils/               # Helper functions (JWT, GeminiAI)
 ├── .env                 # Environment variables
 └── server.js            # Entry point
 ```
