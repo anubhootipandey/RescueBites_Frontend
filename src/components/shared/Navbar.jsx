@@ -40,20 +40,6 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   };
 
-  const getDashboardPath = () => {
-    if (!user) return '/';
-    switch (user.role) {
-      case 'admin':
-        return '/admin/dashboard';
-      case 'recipient':
-        return '/recipient/dashboard';
-      case 'donor':
-        return '/donor/dashboard';
-      default:
-        return '/';
-    }
-  };
-
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
@@ -194,8 +180,6 @@ const Navbar = () => {
 
                 {user ? (
                   <>
-                    <Link to={getDashboardPath()} onClick={closeMobileMenu} className="text-gray-700 hover:text-purple-600">Dashboard</Link>
-
                     {/* Profile visible to all roles including admin */}
                     <Link to="/profile" onClick={closeMobileMenu} className="text-gray-700 hover:text-green-600">Profile</Link>
 
