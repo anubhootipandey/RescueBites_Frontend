@@ -8,6 +8,7 @@ import Button from "../ui/Button";
 
 const RequestFoodForm = () => {
   const [neededItems, setNeededItems] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [address, setAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const RequestFoodForm = () => {
     setIsSubmitting(true);
     
     try {
-      await requestFood({ neededItems, address });
+      await requestFood({ neededItems, address, contactNumber });
       toast.success("✅ Food request submitted successfully!");
       navigate("/recipient/dashboard", {
         state: { requested: true },
@@ -82,6 +83,27 @@ const RequestFoodForm = () => {
               Be specific about quantities and types of food you need
             </p>
           </div>
+
+          {/* Contact Number Field */}
+<div>
+  <label className="block text-sm font-semibold text-gray-700 mb-3">
+    📞 Contact Number
+  </label>
+  <div className="relative">
+    <input
+      type="tel"
+      placeholder="Enter your phone number"
+      className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
+      value={contactNumber}
+      onChange={(e) => setContactNumber(e.target.value)}
+      required
+    />
+  </div>
+  <p className="text-xs text-gray-500 mt-2">
+    We'll use this number to contact you about your request.
+  </p>
+</div>
+
 
           {/* Address Field */}
           <div>

@@ -16,7 +16,6 @@ const updateDonationById = (id, updatedData, token) => {
   });
 };
 
-// Updated endpoint to match new route
 const markRequestAsSent = (requestId) => {
   const token = localStorage.getItem("token");
   return api.put(`/donor/send-request/${requestId}`, {}, {
@@ -26,7 +25,6 @@ const markRequestAsSent = (requestId) => {
   });
 };
 
-// Updated endpoint to match new route
 const markDonationAsSent = (donationId) => {
   const token = localStorage.getItem("token");
   return api.put(`/donor/send-donation/${donationId}`, {}, {
@@ -54,14 +52,17 @@ const getApprovedRequests = () => {
   });
 };
 
+const sendFood = (donationId) =>
+  api.put(`/donor/send-food/${donationId}`);
+
 export {
   getDashboardData,
   addDonation,
   getMyDonations,
-  deleteDonation,
   updateDonationById,
   markRequestAsSent,
   markDonationAsSent,
   markDonationComplete,
   getApprovedRequests,
+  sendFood,
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   getDashboardData,
   getMyDonations,
-  deleteDonation,
+  sendFood
 } from "../../services/donorService";
 import { motion } from "framer-motion";
 import {
@@ -10,7 +10,6 @@ import {
   Archive,
   Clock,
   CheckCircle,
-  Trash2,
   Plus,
   TrendingUp,
   Heart,
@@ -43,6 +42,7 @@ import Confetti from "react-confetti";
 import { useWindowSize } from "react-use"; // Optional to handle dynamic window
 import MapComponent from "../MapComponent";
 import { toast } from "react-toastify";
+import RequestDetailsModal from "./RequestDetailsModal";
 
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -55,8 +55,35 @@ const DonorDashboard = () => {
   const navigate = useNavigate();
   const { width, height } = useWindowSize();
 const [showConfetti, setShowConfetti] = useState(false);
+const [donations, setDonations] = useState([]);
+const [selectedDonation, setSelectedDonation] = useState(null);
 
   const token = localStorage.getItem("token");
+
+  const fetchMyDonations = async () => {
+  try {
+    const res = await getMyDonations();
+    setDonations(res.data);
+  } catch (err) {
+    toast.error("Failed to load your donations");
+  }
+};
+
+const handleSendFood = async () => {
+  try {
+    await sendFood(selectedDonation._id);
+    toast.success("Donation marked as sent");
+    setSelectedDonation(null);
+    fetchMyDonations();
+  } catch (err) {
+    toast.error("Failed to send food");
+  }
+};
+
+useEffect(() => {
+  fetchMyDonations();
+}, []);
+
 
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -139,60 +166,6 @@ useEffect(() => {
 
   fetchData();
 }, []);
-
-
-const refreshDonations = async () => {
-  try {
-    const myDonationsRes = await getMyDonations(token);
-    setMyDonations(myDonationsRes.data);
-  } catch (err) {
-    console.error("Failed to refresh donations", err);
-  }
-};
-
-
-  const handleSendFood = async (requestId) => {
-  try {
-    const res = await api.put(`/donor/send-food/${requestId}`);
-    alert("Marked as sent!");
-
-    // Update UI
-    setApprovedRequests((prev) =>
-      prev.map((req) =>
-        req._id === requestId ? { ...req, status: "sent" } : req
-      )
-    );
-  } catch (err) {
-    console.error("Failed to mark as sent:", err);
-    alert("Failed to send food.");
-  }
-};
-
-const handleMarkComplete = async (donationId) => {
-  try {
-    await api.patch(`/donor/mark-donation-complete/${donationId}`);
-    alert("Donation marked as completed!");
-    refreshDonations(); //  add this
-  } catch (err) {
-    console.error("Failed to mark donation as completed:", err);
-    alert("Failed to update status");
-  }
-};
-
-const handleSendFoodToRecipient = async (donationId) => {
-  try {
-    await api.put(`/donor/send-food/${donationId}`); // create this route if not done
-    toast.success("Food marked as sent!");
-    setMyDonations((prev) =>
-      prev.map((donation) =>
-        donation._id === donationId ? { ...donation, status: "completed" } : donation
-      )
-    );
-  } catch (err) {
-    console.error("Failed to send food:", err);
-    toast.error("Failed to send food");
-  }
-};
 
 
 
@@ -343,8 +316,17 @@ const handleSendFoodToRecipient = async (donationId) => {
           <h2 className="text-xl font-bold text-gray-800">Donor Dashboard</h2>
           <p className="text-sm text-gray-600 mt-1">Welcome back, {data.donorName}!</p>
           <p className="text-sm text-yellow-600 mt-1">
-  🏅 Level: {data.rewardPoints >= 50 ? "Gold Donor" : data.rewardPoints >= 20 ? "Silver Donor" : "Supporter"}
+  🏅 Level: {
+    data.rewardPoints >= 150
+      ? "Gold Donor"
+      : data.rewardPoints >= 100
+      ? "Silver Donor"
+      : data.rewardPoints >= 50
+      ? "Bronze Donor"
+      : "Supporter"
+  }
 </p>
+
 
         </div>
         
@@ -605,6 +587,15 @@ const handleSendFoodToRecipient = async (donationId) => {
                               {donation.status?.charAt(0).toUpperCase() + donation.status?.slice(1) || 'Available'}
                             </span>
                           </div>
+                          {donation.status === "requested" ? (
+  donation.claimedBy ? (
+    <button onClick={() => setSelectedDonation(donation)}>View Request Details</button>
+  ) : (
+    <span className="text-xs text-yellow-500">Waiting for Claim</span>
+  )
+) : null}
+
+                          
                         </div>
 
                         <div className="pt-2 border-t border-gray-50">
@@ -783,19 +774,29 @@ const handleSendFoodToRecipient = async (donationId) => {
     <h2 className="text-xl font-bold text-gray-800 mb-4">My Rewards</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-      {data.rewards?.length > 0 ? (
-        data.rewards.map((reward, idx) => (
-          <div
-            key={idx}
-            className="p-4 border border-purple-200 bg-purple-50 rounded-lg text-center shadow-sm"
-          >
-            <Award className="w-6 h-6 mx-auto text-purple-600 mb-2" />
-            <p className="text-md font-semibold text-purple-700">{reward}</p>
-          </div>
-        ))
-      ) : (
-        <p className="text-gray-500 col-span-full">No rewards unlocked yet.</p>
-      )}
+      {(() => {
+  const rewards = [];
+  const points = data.rewardPoints;
+
+  if (points >= 50) rewards.push("Bronze Donor");
+  if (points >= 100) rewards.push("Silver Donor");
+  if (points >= 150) rewards.push("Gold Donor");
+
+  return rewards.length > 0 ? (
+    rewards.map((reward, idx) => (
+      <div
+        key={idx}
+        className="p-4 border border-purple-200 bg-purple-50 rounded-lg text-center shadow-sm"
+      >
+        <Award className="w-6 h-6 mx-auto text-purple-600 mb-2" />
+        <p className="text-md font-semibold text-purple-700">{reward}</p>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500 col-span-full">No rewards unlocked yet.</p>
+  );
+})()}
+
     </div>
 
     <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
@@ -814,6 +815,41 @@ const handleSendFoodToRecipient = async (donationId) => {
 </div>
   </Card>
 )}
+
+{/* View Request Details Modal */}
+{selectedDonation && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
+      <button
+        onClick={() => setSelectedDonation(null)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+      >
+        ✕
+      </button>
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Request Details</h2>
+      <p className="mb-2"><strong>Food Type:</strong> {selectedDonation.foodType}</p>
+      <p className="mb-2"><strong>Quantity:</strong> {selectedDonation.quantity} kg</p>
+      <p className="mb-2"><strong>Location:</strong> {selectedDonation.location}</p>
+      <p className="mb-4"><strong>Status:</strong> {selectedDonation.status}</p>
+
+      {selectedDonation.status === "requested" && (
+        <Button
+          onClick={() => handleSendFood(selectedDonation._id)}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+           Mark as Sent
+        </Button>
+      )}
+    </div>
+  </div>
+)}
+
+<RequestDetailsModal
+  donation={selectedDonation}
+  onClose={() => setSelectedDonation(null)}
+  onSend={handleSendFood}
+/>
+
 
 
       </main>
