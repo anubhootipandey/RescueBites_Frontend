@@ -23,6 +23,8 @@ import {
   LayoutDashboard,
   PieChart,
   HandHeart,
+  Menu,
+   X
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -57,6 +59,8 @@ const DonorDashboard = () => {
 const [showConfetti, setShowConfetti] = useState(false);
 const [donations, setDonations] = useState([]);
 const [selectedDonation, setSelectedDonation] = useState(null);
+const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
 
   const token = localStorage.getItem("token");
 
@@ -69,16 +73,19 @@ const [selectedDonation, setSelectedDonation] = useState(null);
   }
 };
 
-const handleSendFood = async () => {
+const handleSendFood = async (donationId) => {
   try {
-    await sendFood(selectedDonation._id);
+    await sendFood(donationId);
     toast.success("Donation marked as sent");
     setSelectedDonation(null);
     fetchMyDonations();
+    fetchApprovedRequests(); // update request list as well
   } catch (err) {
     toast.error("Failed to send food");
+    console.error("Send Food Error:", err);
   }
 };
+
 
 useEffect(() => {
   fetchMyDonations();
@@ -363,12 +370,56 @@ useEffect(() => {
         </div>
       </aside>
 
-      {/* Mobile Menu Toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button className="p-2 bg-white rounded-lg shadow-md">
-          <LayoutDashboard className="w-5 h-5 text-gray-600" />
+      {/* Mobile Sidebar (Drawer-style) */}
+{isSidebarOpen && (
+  <div className="fixed inset-0 z-50 flex">
+    {/* Backdrop */}
+    <div
+      className="fixed inset-0 bg-black bg-opacity-40"
+      onClick={() => setIsSidebarOpen(false)}
+    ></div>
+
+    {/* Sidebar Content */}
+    <aside className="relative z-50 w-64 bg-white p-6 shadow-lg space-y-4">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-800">Menu</h2>
+        <button onClick={() => setIsSidebarOpen(false)}>
+          <X className="w-5 h-5 text-gray-600" />
         </button>
       </div>
+
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => {
+            setActiveTab(tab.id);
+            setIsSidebarOpen(false); // Close on click
+          }}
+          className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 font-medium text-sm ${
+            activeTab === tab.id
+              ? "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 shadow-sm border-l-4 border-blue-500"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          }`}
+        >
+          <tab.icon className="w-5 h-5 mr-3" />
+          {tab.label}
+        </button>
+      ))}
+    </aside>
+  </div>
+)}
+
+
+      {/* Mobile Menu Toggle */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+  <button
+    className="p-2 bg-white rounded-lg shadow-md"
+    onClick={() => setIsSidebarOpen(true)}
+  >
+    <Menu className="w-5 h-5 text-gray-600" />
+  </button>
+</div>
+
 
       {showConfetti && <Confetti width={width} height={height} />}
 
@@ -736,12 +787,13 @@ useEffect(() => {
     {req.status}
   </span>
   {req.status === "approved" && (
-    <button
-      onClick={() => handleSendFood(req._id)}
-      className="ml-2 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      Send Food
-    </button>
+    <Button
+  onClick={() => handleSendFood(selectedDonation._id)}
+  className="bg-blue-600 hover:bg-blue-700 text-white"
+>
+   Mark as Sent
+</Button>
+
   )}
 </td>
 
