@@ -57,7 +57,7 @@ const RecipientDashboard = () => {
   const submitRequest = async () => {
     if (
       !requestForm.name ||
-      !requestForm.contact ||
+      !requestForm.contactNumber ||
       !requestForm.address ||
       !requestForm.quantity
     ) {
@@ -67,7 +67,7 @@ const RecipientDashboard = () => {
       await claimDonation(selectedDonation._id, requestForm);
       toast.success("🎉 Request sent successfully!");
       setShowRequestModal(false);
-      setRequestForm({ name: "", contact: "", address: "", quantity: "" });
+      setRequestForm({ name: "", contactNumber: "", address: "", quantity: "" });
       fetchDashboard();
       fetchDonations();
     } catch (err) {
@@ -613,6 +613,9 @@ const RecipientDashboard = () => {
                         Items
                       </th>
                       <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
+                        Contact(+91)
+                      </th>
+                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
                         Address
                       </th>
                       <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
@@ -631,6 +634,9 @@ const RecipientDashboard = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-800">
                           {request.neededItems}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-800">
+                          {request.contactNumber}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-800">
                           {request.address}

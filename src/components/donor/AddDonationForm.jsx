@@ -45,14 +45,21 @@ const AddDonationForm = () => {
     setError('');
 
     try {
-      if (!formData.foodType || !formData.quantity || !formData.location) {
-        throw new Error('Please fill in all required fields');
-      }
+      if (
+  !formData.foodType.trim() ||
+  !formData.quantity.toString().trim() ||
+  !formData.location.trim() ||
+  !formData.contactNumber.trim()
+) {
+  throw new Error('Please fill in all required fields');
+}
+
 
       const data = {
         foodType: formData.foodType,
         quantity: Number(formData.quantity),
         location: formData.location,
+        contactNumber: formData.contactNumber,
       };
 
       await addDonation(data, token);

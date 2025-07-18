@@ -9,10 +9,7 @@ import {
   HandHeart,
   Building2,
   Eye,
-  Lightbulb,
   Smartphone,
-  Globe,
-  TrendingUp,
   Rocket,
   Shield
 } from 'lucide-react';
@@ -22,6 +19,11 @@ import img1 from "../images/pic2.jpg";
 import img3 from "../images/pic5.jpg";
 import img4 from "../images/pic6.jpg";
 import img5 from "../images/pic3.jpg";
+import { Github, Linkedin, Mail } from "lucide-react";
+import team1 from "../images/team1.jpg";
+import team2 from "../images/pic1.jpg";
+import team3 from "../images/team3.jpg";
+
 
 const About = () => {
   const indianChallenges = [
@@ -45,8 +47,8 @@ const About = () => {
   },
   {
     title: "Malnutrition Among Children",
-    value: "35% Under 5",
-    description: "Nearly 35% of children under 5 in India are stunted due to poor nutrition (NFHS-5)",
+    value: "35% Under Age 5",
+    description: "Nearly 35% of children under age 5 in India are stunted due to poor nutrition (NFHS-5)",
     image: img0,
     color: "text-green-600",
     bgColor: "bg-green-100",
@@ -420,6 +422,92 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      {/* Meet Our Team Section */}
+<section className="py-24 bg-orange-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      viewport={{ once: true }}
+      className="text-center mb-16"
+    >
+      <div className="inline-flex items-center bg-orange-100 px-6 py-3 rounded-full mb-8">
+        <Users className="w-5 h-5 text-orange-600 mr-2" />
+        <span className="font-medium text-orange-700">Meet Our Team</span>
+      </div>
+      <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+        Passionate <span className="text-orange-500">Change-Makers</span>
+      </h2>
+      <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Our team is dedicated to bridging the gap between food waste and hunger with compassion and code.
+      </p>
+    </motion.div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      {[{
+        name: "Anubhooti Pandey",
+        role: "Lead Code Architect & Backend Developer",
+        image: team1,
+        bio: "Handles complex logic, APIs and data flow with precision and backend efficiency.",
+        github: "https://github.com/anubhootipandey",
+        linkedin: "www.linkedin.com/in/anubhooti-pandey-418063228",
+        email: "mailto:anubhooti5work@gmail.com"
+      },
+      {
+        name: "Versha Gautam",
+        role: "Lead Frontend Developer & UI Systems Engineer",
+        image: team2,
+        bio: "Designs intuitive UIs and builds seamless user experiences with ReactJS and TailwindCSS.",
+        github: "https://github.com/Versha108",
+        linkedin: "https://www.linkedin.com/in/versha-gautam-a33064228/",
+        email: "mailto:gversha20@gmail.com"
+      },
+      {
+        name: "Riddhi Sahu",
+        role: "Support Lead & Documentation Curator",
+        image: team3,
+        bio: "Researches deeply and crafts clear documentation to guide decisions and improve user understanding.",
+        github: "https://github.com/Riddhi-Sahu",
+        linkedin: "https://www.linkedin.com/in/riddhi-sahu-330062228/",
+        email: "mailto:sahuriddhi0987@gmail.com"
+      }
+      ].map((member, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: idx * 0.1 }}
+          viewport={{ once: true }}
+        >
+          <div className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 text-center p-6">
+            <img
+              src={member.image}
+              alt={member.name}
+              className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-orange-200"
+            />
+            <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
+            <p className="text-orange-600 text-[13px] mb-3">{member.role}</p>
+            <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+            <div className="flex justify-center gap-4 mt-2">
+              <a href={member.github} target="_blank" rel="noopener noreferrer">
+                <Github className="w-5 h-5 text-gray-700 hover:text-black transition" />
+              </a>
+              <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
+                <Linkedin className="w-5 h-5 text-blue-700 hover:text-blue-800 transition" />
+              </a>
+              <a href={member.email}>
+                <Mail className="w-5 h-5 text-red-600 hover:text-red-700 transition" />
+              </a>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
+
     </div>
   );
 };

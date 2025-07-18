@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 const RequestDonationModal = ({ donation, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     name: "",
-    contact: "",
+    contactNumber: "",
     address: "",
     quantity: donation.quantity || "",
   });
@@ -46,11 +46,11 @@ const RequestDonationModal = ({ donation, onSubmit, onClose }) => {
             required
           />
           <input
-            name="contact"
+            name="contactNumber"
             type="text"
             placeholder="Contact Number"
             className="w-full border border-gray-300 rounded-lg px-4 py-2"
-            value={formData.contact}
+            value={formData.contactNumber}
             onChange={handleChange}
             required
           />
