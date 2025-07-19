@@ -12,6 +12,9 @@ import {
   Menu,
   X,
   Box,
+  RefreshCw,
+  ChevronDown,
+  Timer,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Card from "../ui/Card";
@@ -22,7 +25,6 @@ import {
 import toast from "react-hot-toast";
 import RequestFoodForm from "../recipient/RequestFoodForm";
 import { claimDonation } from "../../services/recipientService";
-import axios from "axios";
 import RequestDonationModal from "./RequestDonationModal";
 
 const RecipientDashboard = () => {
@@ -39,10 +41,20 @@ const RecipientDashboard = () => {
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [contactNumber, setContactNumber] = useState("");
 
+  // Enhanced state for donations tab
+  const [donationSearchTerm, setDonationSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Enhanced state for requests tab
+  const [requestsSortBy, setRequestsSortBy] = useState("newest");
+  const [requestsFilterStatus, setRequestsFilterStatus] = useState("all");
+  const [showRequestsFilters, setShowRequestsFilters] = useState(false);
 
   const [requestForm, setRequestForm] = useState({
     name: "",
-    contact: "",
+    contactNumber: "", 
     address: "",
     quantity: "",
   });
@@ -111,7 +123,7 @@ const RecipientDashboard = () => {
 
   useEffect(() => {
     if (activeTab === "donations") {
-      fetchDonations(); // This is missing in your code currently
+      fetchDonations();
     }
   }, [activeTab]);
 
@@ -121,7 +133,7 @@ const RecipientDashboard = () => {
     if (location.state?.newRequest) {
       toast.success("🎉 Your food request has been submitted!");
       window.history.replaceState({}, document.title);
-      setTimeout(fetchDashboard, 1000); // Wait to ensure backend stores the request
+      setTimeout(fetchDashboard, 1000);
     }
   }, [location]);
 
@@ -153,89 +165,321 @@ const RecipientDashboard = () => {
     }
   };
 
-  const renderDonationsTab = () => (
-    <div>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Available Donations
-      </h2>
+  // Enhanced filtering and sorting for donations
+  const getFilteredAndSortedDonations = () => {
+    let filtered = donations.filter((donation) => {
+      const matchesSearch = donation.foodType.toLowerCase().includes(donationSearchTerm.toLowerCase()) ||
+                           donation.category.toLowerCase().includes(donationSearchTerm.toLowerCase()) ||
+                           (donation.donorName || donation.donor?.name || "").toLowerCase().includes(donationSearchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "all" || donation.category.toLowerCase() === selectedCategory.toLowerCase();
+      
+      return matchesSearch && matchesCategory;
+    });
 
-      {loadingDonations ? (
-        <p className="text-gray-500">Loading donations...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {donations.length > 0 ? (
-            donations.map((donation) => {
-              const createdAt = new Date(donation.createdAt);
-              const expiresAt = new Date(
-                createdAt.getTime() + 24 * 60 * 60 * 1000
-              );
-              const now = new Date();
-              const timeLeftMs = expiresAt - now;
+    // Sort donations
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case "oldest":
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case "expiring":
+          const aExpiry = new Date(new Date(a.createdAt).getTime() + 24 * 60 * 60 * 1000);
+          const bExpiry = new Date(new Date(b.createdAt).getTime() + 24 * 60 * 60 * 1000);
+          return aExpiry - bExpiry;
+        case "quantity":
+          return parseInt(b.quantity) - parseInt(a.quantity);
+        default:
+          return 0;
+      }
+    });
 
-              const hoursLeft = Math.floor(timeLeftMs / (1000 * 60 * 60));
-              const minutesLeft = Math.floor(
-                (timeLeftMs % (1000 * 60 * 60)) / (1000 * 60)
-              );
-              const timeLeftString =
-                timeLeftMs > 0
-                  ? `${hoursLeft}h ${minutesLeft}m left`
-                  : "⛔ Expired (will be removed)";
+    return filtered;
+  };
 
-              return (
-                <Card
-                  key={donation._id}
-                  className="p-5 border-l-4 border-orange-500 shadow"
-                >
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {donation.foodType}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Quantity: {donation.quantity}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Donor: {donation.donorName || donation.donor?.name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Location: {donation.location}
-                  </p>
-                  <p className="text-xs text-red-500 font-medium mt-2 mb-3">
-                    ⏳ {timeLeftString}
-                  </p>
+  // Enhanced filtering and sorting for requests
+  const getFilteredAndSortedRequests = () => {
+    let filtered = dashboardData.requests?.filter((request) => {
+      const matchesSearch = request.neededItems.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           request.recipientName.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = requestsFilterStatus === "all" || 
+                           (request.status || "pending").toLowerCase() === requestsFilterStatus.toLowerCase();
+      
+      return matchesSearch && matchesStatus;
+    }) || [];
 
-                  <button
-                    onClick={() => setSelectedDonation(donation)}
-                    className={`px-4 py-2 text-white rounded transition-all duration-200 ${
-                      donation.status === "requested" || timeLeftMs <= 0
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-orange-500 hover:bg-orange-600"
-                    }`}
-                    disabled={
-                      donation.status === "requested" || timeLeftMs <= 0
-                    }
-                  >
-                    {donation.status === "requested"
-                      ? "Requested"
-                      : timeLeftMs <= 0
-                      ? "Expired"
-                      : "Request This"}
-                  </button>
+    // Sort requests
+    filtered.sort((a, b) => {
+      switch (requestsSortBy) {
+        case "newest":
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case "oldest":
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case "status":
+          return (a.status || "pending").localeCompare(b.status || "pending");
+        case "quantity":
+          return parseInt(b.quantity || 0) - parseInt(a.quantity || 0);
+        default:
+          return 0;
+      }
+    });
 
-                  {selectedDonation && (
-                    <RequestDonationModal
-                      donation={selectedDonation}
-                      onSubmit={handleClaimDonation}
-                      onClose={() => setSelectedDonation(null)}
-                    />
-                  )}
-                </Card>
-              );
-            })
-          ) : (
-            <p className="text-gray-500">No donations available right now.</p>
-          )}
+    return filtered;
+  };
+
+  // Loading skeleton component
+  const DonationSkeleton = () => (
+    <Card className="p-5 border-l-4 border-gray-200 shadow animate-pulse">
+      <div className="space-y-3">
+        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-200 rounded w-full"></div>
+          <div className="h-3 bg-gray-200 rounded w-full"></div>
+          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
         </div>
-      )}
-    </div>
+        <div className="h-10 bg-gray-200 rounded w-full mt-4"></div>
+      </div>
+    </Card>
+  );
+
+  const renderDonationsTab = () => {
+    const filteredDonations = getFilteredAndSortedDonations();
+    const categories = [...new Set(donations.map(d => d.category))];
+
+    return (
+      <div className="space-y-6">
+        {/* Enhanced Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Available Donations
+            </h2>
+            <p className="text-gray-600">
+              Discover and request food donations from our community
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={fetchDonations}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              disabled={loadingDonations}
+            >
+              <RefreshCw className={`w-4 h-4 ${loadingDonations ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <div className="text-sm bg-blue-100 text-blue-800 px-3 py-2 rounded-lg font-medium">
+              {filteredDonations.length} Available
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Search and Filter Bar */}
+        <Card className="p-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search donations by food type, category, or donor..."
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+                value={donationSearchTerm}
+                onChange={(e) => setDonationSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Category Filter */}
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+              >
+                <option value="all">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Sort */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="expiring">Expiring Soon</option>
+                <option value="quantity">Highest Quantity</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+        </Card>
+
+        {/* Enhanced Donations Grid */}
+        {loadingDonations ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <DonationSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDonations.length > 0 ? (
+              filteredDonations.map((donation) => {
+                const createdAt = new Date(donation.createdAt);
+                const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+                const now = new Date();
+                const timeLeftMs = expiresAt - now;
+
+                const hoursLeft = Math.floor(timeLeftMs / (1000 * 60 * 60));
+                const minutesLeft = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+                const timeLeftString =
+                  timeLeftMs > 0
+                    ? `${hoursLeft}h ${minutesLeft}m left`
+                    : "⛔ Expired (will be removed)";
+
+                const isExpired = timeLeftMs <= 0;
+                const isRequested = donation.status === "requested";
+                const isUrgent = hoursLeft < 2 && !isExpired;
+
+                return (
+                  <Card 
+                    key={donation._id} 
+                    className={`p-5 border-l-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+                      isUrgent ? 'border-red-500 bg-red-50' : 'border-orange-500'
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      {/* Header with Priority Badge */}
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                          🍱 {donation.foodType}
+                        </h3>
+                        {isUrgent && (
+                          <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1">
+                            <Timer className="w-3 h-3" />
+                            Urgent
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium inline-block">
+                        {donation.category}
+                      </div>
+
+                      {/* Enhanced Info Grid */}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 flex items-center justify-center">👤</span>
+                          <span className="text-gray-600">Donor:</span>
+                          <span className="font-medium text-gray-800">{donation.donorName || donation.donor?.name}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 flex items-center justify-center">🏢</span>
+                          <span className="text-gray-600">Type:</span>
+                          <span className="font-medium text-gray-800">{donation.donorType || 'N/A'}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 flex items-center justify-center">⚖️</span>
+                          <span className="text-gray-600">Quantity:</span>
+                          <span className="font-bold text-orange-600">{donation.quantity}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 flex items-center justify-center">📞</span>
+                          <span className="text-gray-600">Contact:</span>
+                          <span className="font-medium text-gray-800">{donation.contactNumber || 'N/A'}</span>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Address */}
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-start gap-2 text-sm">
+                          <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium text-gray-700">Address:</span>
+                            <div className="text-gray-600 mt-1">
+                              <div>{donation.address?.street}</div>
+                              <div>{donation.address?.city}, {donation.address?.state}</div>
+                              <div>Pincode: {donation.address?.pincode}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Time Display */}
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${
+                        isExpired ? 'bg-red-100' : isUrgent ? 'bg-red-50' : 'bg-blue-50'
+                      }`}>
+                        <Clock className={`w-4 h-4 ${
+                          isExpired ? 'text-red-500' : isUrgent ? 'text-red-600' : 'text-blue-500'
+                        }`} />
+                        <span className={`text-sm font-medium ${
+                          isExpired ? 'text-red-700' : isUrgent ? 'text-red-700' : 'text-blue-700'
+                        }`}>
+                          {timeLeftString}
+                        </span>
+                      </div>
+
+                      {/* Enhanced Action Button */}
+                      <button
+                        onClick={() => setSelectedDonation(donation)}
+                        className={`w-full mt-4 px-4 py-3 text-white rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                          isRequested || isExpired
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg"
+                        }`}
+                        disabled={isRequested || isExpired}
+                      >
+                        {isRequested
+                          ? "✅ Already Requested"
+                          : isExpired
+                          ? "⏰ Expired"
+                          : "🤝 Request This Donation"}
+                      </button>
+                    </div>
+                  </Card>
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Box className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No donations found
+                </h3>
+                <p className="text-gray-600">
+                  {donationSearchTerm || selectedCategory !== "all" 
+                    ? "Try adjusting your search or filters" 
+                    : "Check back later for new donations"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Enhanced requests filtering
+  const enhancedFilteredRequests = getFilteredAndSortedRequests();
+  const enhancedTotalPages = Math.ceil(enhancedFilteredRequests.length / itemsPerPage);
+  const enhancedPaginatedRequests = enhancedFilteredRequests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   return (
@@ -514,7 +758,9 @@ const RecipientDashboard = () => {
                         <div className="flex items-start space-x-2">
                           <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
                           <span className="text-sm text-gray-800">
-                            {dashboardData.latestRequest.address}
+                            {dashboardData.latestRequest.address
+                              ? `${dashboardData.latestRequest.address.street}, ${dashboardData.latestRequest.address.city}, ${dashboardData.latestRequest.address.state} - ${dashboardData.latestRequest.address.pincode}`
+                              : "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -587,99 +833,185 @@ const RecipientDashboard = () => {
                 </p>
               </div>
 
-              {/* Search Bar */}
-              <div className="mb-6 lg:mb-8">
-                <div className="relative max-w-md">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search your requests..."
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+              {/* Enhanced Search and Filter Bar */}
+              <Card className="p-4 mb-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search Bar */}
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Search your requests..."
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="relative">
+                    <select
+                      value={requestsFilterStatus}
+                      onChange={(e) => setRequestsFilterStatus(e.target.value)}
+                      className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="pending">Pending</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+
+                  {/* Sort */}
+                  <div className="relative">
+                    <select
+                      value={requestsSortBy}
+                      onChange={(e) => setRequestsSortBy(e.target.value)}
+                      className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="status">By Status</option>
+                      <option value="quantity">By Quantity</option>
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
-              </div>
+              </Card>
 
-              {/* Table Format for Requests */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white rounded-xl shadow">
-                  <thead className="bg-blue-100">
-                    <tr>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-                        #
-                      </th>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-                        Items
-                      </th>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-                        Contact(+91)
-                      </th>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-                        Address
-                      </th>
-                      <th className="text-left px-6 py-3 text-sm font-semibold text-gray-700">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedRequests.map((request, index) => (
-                      <tr
-                        key={request._id}
-                        className="border-t border-gray-100"
-                      >
-                        <td className="px-6 py-4 text-sm text-gray-800">
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800">
-                          {request.neededItems}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800">
-                          {request.contactNumber}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-800">
-                          {request.address}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-block px-3 py-1 text-xs rounded-full font-medium border ${getStatusColor(
-                              request.status
-                            )}`}
-                          >
-                            {request.status || "pending"}
-                          </span>
-                        </td>
+              {/* Enhanced Table Format for Requests */}
+              <Card className="overflow-hidden shadow-lg">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead className="bg-gradient-to-r from-blue-50 to-purple-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipient</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {enhancedPaginatedRequests.map((request, index) => (
+                        <tr key={request._id} className="hover:bg-gray-50 transition-colors duration-200">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800">
+                            <div className="font-medium">{request.neededItems}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {request.quantity || "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                            {request.recipientName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {request.recipientType}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {request.contactNumber}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {request.deliveryType}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 max-w-xs">
+                            <div className="truncate">
+                              {request.address
+                                ? `${request.address.street}, ${request.address.city}, ${request.address.state} - ${request.address.pincode}`
+                                : "N/A"}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                request.status
+                              )}`}
+                            >
+                              {request.status === "completed" && <span className="mr-1">✅</span>}
+                              {request.status === "pending" && <span className="mr-1">⏳</span>}
+                              {request.status === "in-progress" && <span className="mr-1">🔄</span>}
+                              {request.status || "pending"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {new Date(request.createdAt).toLocaleDateString("en-IN")}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(request.createdAt).toLocaleTimeString("en-IN", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-4 mt-8">
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-gray-700 font-medium">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-                  >
-                    Next
-                  </button>
+              {/* Enhanced Pagination */}
+              {enhancedTotalPages > 1 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 mt-6">
+                  <div className="text-sm text-gray-700">
+                    Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                    {Math.min(currentPage * itemsPerPage, enhancedFilteredRequests.length)} of{" "}
+                    {enhancedFilteredRequests.length} results
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    >
+                      Previous
+                    </button>
+                    
+                    {/* Page numbers */}
+                    <div className="flex space-x-1">
+                      {[...Array(Math.min(5, enhancedTotalPages))].map((_, i) => {
+                        const page = currentPage <= 3 ? i + 1 : currentPage - 2 + i;
+                        if (page > enhancedTotalPages) return null;
+                        
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              currentPage === page
+                                ? "bg-blue-500 text-white"
+                                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, enhancedTotalPages))}
+                      disabled={currentPage === enhancedTotalPages}
+                      className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -722,6 +1054,15 @@ const RecipientDashboard = () => {
           {activeTab === "donations" && renderDonationsTab()}
         </div>
       </div>
+
+      {/* Global Modal - Rendered at page level to prevent lagging */}
+      {selectedDonation && (
+        <RequestDonationModal
+          donation={selectedDonation}
+          onSubmit={handleClaimDonation}
+          onClose={() => setSelectedDonation(null)}
+        />
+      )}
     </div>
   );
 };

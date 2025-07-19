@@ -7,24 +7,52 @@ import Card from "../ui/Card";
 import Button from "../ui/Button";
 
 const RequestFoodForm = () => {
-  const [neededItems, setNeededItems] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [address, setAddress] = useState("");
+  const [formData, setFormData] = useState({
+    recipientName: "",
+    recipientType: "Individual",
+    neededItems: "",
+    quantity: "",
+    contactNumber: "",
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
+    deliveryType: "Need Delivery", // Default value
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      await requestFood({ neededItems, address, contactNumber });
-      toast.success("✅ Food request submitted successfully!");
-      navigate("/recipient/dashboard", {
-        state: { requested: true },
+      const address = {
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+      };
+
+      await requestFood({
+        recipientName: formData.recipientName,
+        recipientType: formData.recipientType,
+        neededItems: formData.neededItems,
+        quantity: formData.quantity,
+        contactNumber: formData.contactNumber,
+        deliveryType: formData.deliveryType,
+        address,
       });
+
+      toast.success("Food request submitted successfully!");
+      navigate("/recipient/dashboard", { state: { requested: true } });
     } catch (error) {
-      toast.error("❌ Failed to submit request. Please try again.");
+      toast.error(" Failed to submit request. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -62,97 +90,156 @@ const RequestFoodForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Needed Items Field */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              <Package className="w-4 h-4 inline mr-2" />
-              What food items do you need?
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="e.g., Rice, vegetables, canned goods, bread..."
-                className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
-                value={neededItems}
-                onChange={(e) => setNeededItems(e.target.value)}
-                required
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                <Package className="w-5 h-5 text-gray-400" />
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Be specific about quantities and types of food you need
-            </p>
+            <label className="block font-semibold mb-1">👤 Recipient Name *</label>
+            <input
+              type="text"
+              name="recipientName"
+              value={formData.recipientName}
+              onChange={handleChange}
+              required
+              placeholder="Enter your name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+            />
           </div>
 
-          {/* Contact Number Field */}
+          <div>
+            <label className="block font-semibold mb-1">🏢 Recipient Type *</label>
+            <select
+  name="recipientType"
+  value={formData.recipientType}
+  onChange={handleChange}
+  required
+  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+>
+  <option value="Individual">Individual</option>
+  <option value="Organization">Organization</option>
+</select>
+          </div>
+
+          {/* Food Info */}
+          <div>
+            <label className="block font-semibold mb-1">🍲 Needed Items *</label>
+            <input
+              type="text"
+              name="neededItems"
+              value={formData.neededItems}
+              onChange={handleChange}
+              required
+              placeholder="e.g., Rice, bread, vegetables..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">📦 Quantity *</label>
+            <input
+              type="text"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              placeholder="e.g., 5kg, 10 packets"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+            />
+          </div>
+
+          {/* Contact Number */}
+          <div>
+            <label className="block font-semibold mb-1">📞 Contact Number *</label>
+            <input
+              type="tel"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              required
+              placeholder="Phone number"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+            />
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block font-semibold mb-1">🏠 Address Details *</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="street"
+                placeholder="Street"
+                value={formData.street}
+                onChange={handleChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+              />
+              <input
+                type="text"
+                name="city"
+                placeholder="City"
+                value={formData.city}
+                onChange={handleChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+              />
+              <input
+                type="text"
+                name="state"
+                placeholder="State"
+                value={formData.state}
+                onChange={handleChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+              />
+              <input
+                type="text"
+                name="pincode"
+                placeholder="Pincode"
+                value={formData.pincode}
+                onChange={handleChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+              />
+            </div>
+          </div>
+
+          {/* Delivery Type */}
 <div>
-  <label className="block text-sm font-semibold text-gray-700 mb-3">
-    📞 Contact Number
-  </label>
-  <div className="relative">
-    <input
-      type="tel"
-      placeholder="Enter your phone number"
-      className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
-      value={contactNumber}
-      onChange={(e) => setContactNumber(e.target.value)}
-      required
-    />
-  </div>
-  <p className="text-xs text-gray-500 mt-2">
-    We'll use this number to contact you about your request.
+  <label className="block font-semibold mb-1">🚚 Delivery Preference *</label>
+  <select
+    name="deliveryType"
+    value={formData.deliveryType}
+    onChange={handleChange}
+    required
+    className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+  >
+    <option value="self-pickup">Self Pickup</option>
+    <option value="need-delivery">Need Delivery</option>
+  </select>
+  <p className="text-sm text-gray-500 mt-1">
+    Select whether you’ll pick up the food or want it delivered.
   </p>
 </div>
 
-
-          {/* Address Field */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              <MapPin className="w-4 h-4 inline mr-2" />
-              Pickup Address
-            </label>
-            <div className="relative">
-              <textarea
-                placeholder="Enter your complete address including street, city, and postal code..."
-                className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 resize-none"
-                rows="4"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-              />
-              <div className="absolute top-4 right-4">
-                <MapPin className="w-5 h-5 text-gray-400" />
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Provide a complete address for accurate delivery or pickup coordination
-            </p>
-          </div>
 
           {/* Submit Button */}
           <div className="pt-6 border-t border-gray-200">
             <Button
               type="submit"
-              disabled={isSubmitting || !neededItems.trim() || !address.trim()}
-              className="w-full py-4 text-lg font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+              className="w-full py-4 text-lg font-semibold flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <Link to="/recipient/dashboard">
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                  <span>Submitting Request...</span>
-                  </Link>
+                  <span>Submitting...</span>
                 </>
               ) : (
                 <>
                   <Send className="w-5 h-5" />
-                  <span>Submit Food Request</span>
+                  <span>Submit Request</span>
                 </>
               )}
             </Button>
           </div>
         </form>
-
         {/* Success Indicators */}
         <div className="mt-8 pt-6 border-t border-gray-200">
           <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">

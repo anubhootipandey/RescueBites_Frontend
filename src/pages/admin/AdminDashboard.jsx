@@ -45,6 +45,18 @@ const AdminDashboard = () => {
   const [loadingDonations, setLoadingDonations] = useState(false);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const filteredDonations = donationList.filter((donation) => {
+  const matchesSearch = donation.foodType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        donation.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesStatus = statusFilter ? donation.status === statusFilter : true;
+
+  return matchesSearch && matchesStatus;
+});
+
 
   // Fetch dashboard data ONCE when the component mounts
   useEffect(() => {
@@ -108,6 +120,45 @@ const AdminDashboard = () => {
       toast.error("Failed to update status");
     }
   };
+
+  const handleDeleteDonation = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this donation?")) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    await api.delete(`/admin/donation/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    toast.success("Donation deleted successfully!");
+    fetchDonations();
+    fetchDashboard();
+  } catch (err) {
+    toast.error("Failed to delete donation");
+  }
+};
+
+const handleDeleteUser = async (userId) => {
+  const confirmed = window.confirm("Are you sure you want to delete this user?");
+  if (!confirmed) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    await api.delete(`/admin/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    toast.success("User deleted successfully!");
+    fetchDashboard(); // refresh user list
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete user");
+  }
+};
+
+
 
   const tabs = [
     {
@@ -416,117 +467,143 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeTab === "donations" && (
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    All Donations
-                  </h3>
-                  <Button onClick={fetchDonations} disabled={loadingDonations}>
-                    {loadingDonations ? (
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                    )}
-                    Refresh
-                  </Button>
-                </div>
+           {activeTab === "donations" && (
+  <Card className="p-6">
+    <div className="flex items-center justify-between mb-6">
+      <h3 className="text-xl font-semibold text-gray-800">All Donations</h3>
+      <Button onClick={fetchDonations} disabled={loadingDonations}>
+        {loadingDonations ? (
+          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+        ) : (
+          <RefreshCw className="w-4 h-4 mr-2" />
+        )}
+        Refresh
+      </Button>
+    </div>
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Food Item
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Quantity
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Location
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Donor
-                        </th>
-                      </tr>
-                    </thead>
+    <div className="overflow-x-auto">
+      <div className="flex items-center justify-between mb-4">
+  <input
+    type="text"
+    placeholder="Search by food type or category..."
+    className="px-3 py-2 border rounded-md w-full max-w-md text-sm"
+    onChange={(e) => setSearchQuery(e.target.value)}
+  />
+  <select
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="ml-4 px-3 py-2 border rounded-md text-sm"
+    defaultValue=""
+  >
+    <option value="">All Statuses</option>
+    <option value="available">Available</option>
+    <option value="requested">Requested</option>
+    <option value="completed">Completed</option>
+  </select>
+</div>
 
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {loadingDonations ? (
-                        <tr>
-                          <td colSpan="5" className="px-6 py-8 text-center">
-                            <div className="flex items-center justify-center">
-                              <RefreshCw className="w-6 h-6 animate-spin text-gray-400 mr-2" />
-                              <span className="text-gray-500">
-                                Loading donations...
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : donationList.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan="5"
-                            className="px-6 py-8 text-center text-gray-500"
-                          >
-                            <div className="flex flex-col items-center">
-                              <Heart className="w-12 h-12 text-gray-300 mb-2" />
-                              <span>No donations found.</span>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : (
-                        donationList.map((donation, index) => (
-                          <motion.tr
-                            key={donation._id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="hover:bg-gray-50 transition-colors"
-                          >
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">
-                                {donation.foodType || "—"}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {donation.quantity || "—"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {donation.location || "—"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  donation.status === "available"
-                                    ? "bg-green-100 text-green-800"
-                                    : donation.status === "requested"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-blue-100 text-blue-800"
-                                }`}
-                              >
-                                {donation.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              <div className="font-medium">
-                                {donation.donor?.username || "N/A"}
-                              </div>
-                              <div className="text-xs text-gray-400">
-                                {donation.donor?.email || ""}
-                              </div>
-                            </td>
-                          </motion.tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Food Type</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Donor</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {loadingDonations ? (
+            <tr>
+              <td colSpan="7" className="px-6 py-8 text-center">
+                <div className="flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6 animate-spin text-gray-400 mr-2" />
+                  <span className="text-gray-500">Loading donations...</span>
                 </div>
-              </Card>
-            )}
+              </td>
+            </tr>
+          ) : donationList.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                <div className="flex flex-col items-center">
+                  <Heart className="w-12 h-12 text-gray-300 mb-2" />
+                  <span>No donations found.</span>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            filteredDonations.map((donation, index) => (
+              <motion.tr
+                key={donation._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-800">
+                  {donation.foodType}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                  {donation.category}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                  {donation.quantity}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                  {donation.contactNumber}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                  {`${donation.address?.street}, ${donation.address?.city}, ${donation.address?.state} - ${donation.address?.pincode}`}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      donation.status === "available"
+                        ? "bg-green-100 text-green-800"
+                        : donation.status === "requested"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {donation.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+  <div className="font-medium">
+    {donation.donorName || donation.donor?.username || "N/A"}
+  </div>
+  <div className="text-xs text-gray-400">
+    {donation.donor?.email || ""}
+  </div>
+  {donation.recipientId && (
+    <div className="text-xs text-green-600 mt-1">
+      Claimed by: {donation.recipientId.username || "N/A"} <br />
+      on {new Date(donation.claimedAt).toLocaleDateString()}
+    </div>
+  )}
+</td>
+<td className="px-4 py-3 whitespace-nowrap text-sm font-medium space-x-2">
+  <Button
+    size="sm"
+    variant="destructive"
+    onClick={() => handleDeleteDonation(donation._id)}
+  >
+    Delete
+  </Button>
+</td>
+
+
+              </motion.tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </Card>
+)}
+
 
             {activeTab === "requests" && (
               <Card className="p-6">
@@ -681,6 +758,10 @@ const AdminDashboard = () => {
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
                           Last Login
                         </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+  Actions
+</th>
+
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -709,6 +790,16 @@ const AdminDashboard = () => {
                               ? new Date(user.lastLogin).toLocaleDateString()
                               : "Never"}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+  <Button
+    variant="destructive"
+    size="sm"
+    onClick={() => handleDeleteUser(user._id)}
+  >
+    Delete
+  </Button>
+</td>
+
                         </motion.tr>
                       ))}
                     </tbody>
