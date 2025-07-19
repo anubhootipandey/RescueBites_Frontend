@@ -109,7 +109,7 @@ const RequestFoodForm = () => {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
               <MapPin className="w-4 h-4 inline mr-2" />
-              Delivery Address
+              Pickup Address
             </label>
             <div className="relative">
               <textarea

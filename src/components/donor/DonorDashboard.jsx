@@ -596,83 +596,108 @@ useEffect(() => {
               </Card>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {myDonations.map((donation, index) => (
-                  <motion.div
-                    key={donation._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <Card className="p-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-400">
-                      <div className="space-y-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <Package className="w-5 h-5 text-blue-500" />
-                              <h4 className="font-bold text-gray-900 text-lg">
-                                {donation.foodType}
-                              </h4>
-                            </div>
-                           <div className="space-y-2">
-  <div className="flex items-center space-x-2 text-sm text-gray-600">
-    <span className="font-medium">Quantity:</span>
-    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-      {donation.quantity}kg
-    </span>
-  </div>
-  <div className="flex items-start space-x-2 text-sm text-gray-600">
-    <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-    <span>{donation.location}</span>
-  </div>
+                {myDonations.map((donation, index) => {
+  const isExpiringSoon = () => {
+    const created = new Date(donation.createdAt);
+    const now = new Date();
+    return (now - created) < 24 * 60 * 60 * 1000; // 24hrs in ms
+  };
 
-  <MapComponent location={donation.location} />
-</div>
-{donation.contactNumber && (
-  <div className="flex items-center space-x-2 text-sm text-gray-600">
-    <span className="font-medium">📞 Contact:</span>
-    <a href={`tel:${donation.contactNumber}`} className="text-blue-600 hover:underline">
-      {donation.contactNumber}
-    </a>
-  </div>
-)}
+  return (
+    <motion.div
+      key={donation._id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ scale: 1.02 }}
+    >
+      <Card className="p-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-400">
+        <div className="space-y-4">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center space-x-2">
+                <Package className="w-5 h-5 text-blue-500" />
+                <h4 className="font-bold text-gray-900 text-lg">
+                  {donation.foodType}
+                </h4>
+                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                  {donation.category}
+                </span>
+              </div>
 
-                          </div>
-                        </div>
+              <div className="text-sm text-gray-600 space-y-1">
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">Quantity:</span>
+                  <span>{donation.quantity} kg / units</span>
+                </div>
 
-                        <div className="pt-4 border-t border-gray-100">
-                          <div className="flex items-center justify-between">
-                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(donation.status)}`}>
-                              {donation.status?.charAt(0).toUpperCase() + donation.status?.slice(1) || 'Available'}
-                            </span>
-                          </div>
-                          {donation.status === "requested" ? (
-  donation.claimedBy ? (
-    <button onClick={() => setSelectedDonation(donation)}>View Request Details</button>
-  ) : (
-    <span className="text-xs text-yellow-500">Waiting for Claim</span>
-  )
-) : null}
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">Donor:</span>
+                  <span>{donation.donorName} ({donation.donorType})</span>
+                </div>
 
-                          
-                        </div>
+                <div className="flex items-start space-x-2">
+                  <MapPin className="w-4 h-4 mt-0.5 text-gray-400" />
+                  <span className="leading-tight">
+                    {donation.address?.street}, {donation.address?.city}, {donation.address?.state} - {donation.address?.pincode}
+                  </span>
+                </div>
 
-                        <div className="pt-2 border-t border-gray-50">
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>Created recently</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Users className="w-3 h-3" />
-                              <span>Community impact</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
+                {donation.contactNumber && (
+                  <div>
+                    <span className="font-medium">📞 Contact:</span>{' '}
+                    <a href={`tel:${donation.contactNumber}`} className="text-blue-600 hover:underline">
+                      {donation.contactNumber}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {isExpiringSoon() && (
+                <div className="text-xs font-medium bg-red-100 text-red-700 inline-block px-2 py-1 rounded-full mt-2">
+                  ⏳ Expiring in 24 hrs
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+            <span
+              className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(donation.status)}`}
+            >
+              {donation.status?.charAt(0).toUpperCase() + donation.status?.slice(1)}
+            </span>
+
+            {donation.status === "requested" && (
+              donation.claimedBy ? (
+                <button
+                  className="text-blue-600 text-xs underline"
+                  onClick={() => setSelectedDonation(donation)}
+                >
+                  View Request Details
+                </button>
+              ) : (
+                <span className="text-xs text-yellow-500">Waiting for Claim</span>
+              )
+            )}
+          </div>
+
+          <div className="pt-2 border-t border-gray-50 text-xs text-gray-500 flex justify-between">
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-3 h-3" />
+              <span>{new Date(donation.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Users className="w-3 h-3" />
+              <span>Community impact</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+})}
+
               </div>
             )}
           </motion.div>
@@ -788,11 +813,20 @@ useEffect(() => {
   </span>
   {req.status === "approved" && (
     <Button
-  onClick={() => handleSendFood(selectedDonation._id)}
-  className="bg-blue-600 hover:bg-blue-700 text-white"
+  onClick={() => {
+    if (req.donationId) {
+      console.log("Sending food for donationId:", req.donationId);
+      handleSendFood(req.donationId);
+    } else {
+      console.warn("Missing donationId in request", req);
+      toast.error("Donation not reached. Please try again later.");
+    }
+  }}
+  className="ml-2 bg-blue-600 hover:bg-blue-700 text-white"
 >
-   Mark as Sent
+  Mark as Sent
 </Button>
+
 
   )}
 </td>

@@ -25,11 +25,18 @@ const AddDonationForm = () => {
   const token = localStorage.getItem('token');
 
   const [formData, setFormData] = useState({
-    foodType: '',
-    quantity: '',
-    location: '',
-    contactNumber: '', 
-  });
+  donorName: '',
+  donorType: '',
+  foodType: '',
+  quantity: '',
+  street: '',
+  city: '',
+  state: '',
+  pincode: '',
+  contactNumber: '',
+  category: '', // food category
+});
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,8 +54,9 @@ const AddDonationForm = () => {
     try {
       if (
   !formData.foodType.trim() ||
-  !formData.quantity.toString().trim() ||
-  !formData.location.trim() ||
+  !formData.quantity.trim() ||
+  !formData.street.trim() || !formData.city.trim() || !formData.state.trim() || !formData.pincode.trim()
+ ||
   !formData.contactNumber.trim()
 ) {
   throw new Error('Please fill in all required fields');
@@ -56,11 +64,20 @@ const AddDonationForm = () => {
 
 
       const data = {
-        foodType: formData.foodType,
-        quantity: Number(formData.quantity),
-        location: formData.location,
-        contactNumber: formData.contactNumber,
-      };
+  donorName: formData.donorName,
+  donorType: formData.donorType,
+  foodType: formData.foodType,
+  quantity: formData.quantity,
+  contactNumber: formData.contactNumber,
+  category: formData.category,
+  address: {
+    street: formData.street,
+    city: formData.city,
+    state: formData.state,
+    pincode: formData.pincode,
+  }
+};
+
 
       await addDonation(data, token);
 
@@ -150,7 +167,59 @@ const AddDonationForm = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Food Type Field */}
+              <div>
+  <label htmlFor="donorName" className="block text-sm font-semibold text-gray-700 mb-3">
+    👤 Donor Name *
+  </label>
+  <input
+    type="text"
+    id="donorName"
+    name="donorName"
+    value={formData.donorName}
+    onChange={handleChange}
+    placeholder="Enter your full name"
+    required
+    className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm"
+  />
+</div>
+<div>
+  <label htmlFor="donorType" className="block text-sm font-semibold text-gray-700 mb-3">
+    🏢 Donor Type *
+  </label>
+  <input
+    type="text"
+    id="donorType"
+    name="donorType"
+    value={formData.donorType}
+    onChange={handleChange}
+    placeholder="e.g., Individual, Restaurant, NGO"
+    required
+    className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm"
+  />
+</div>
+<div>
+  <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-3">
+    🍱 Food Category *
+  </label>
+  <select
+    id="category"
+    name="category"
+    value={formData.category}
+    onChange={handleChange}
+    required
+    className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm"
+  >
+    <option value="">Select Category</option>
+    <option value="Cooked">Cooked</option>
+    <option value="Raw Ingredients">Raw Ingredients</option>
+    <option value="Packaged Items">Packaged Items</option>
+    <option value="Bakery Items">Bakery Items</option>
+    <option value="Beverages">Beverages</option>
+    <option value="Others">Others</option>
+  </select>
+</div>
+
+
               <div>
                 <label htmlFor="foodType" className="block text-sm font-semibold text-gray-700 mb-3">
                   <Type className="w-4 h-4 inline mr-2" />
@@ -180,31 +249,25 @@ const AddDonationForm = () => {
               <div>
                 <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-3">
                   <Scale className="w-4 h-4 inline mr-2" />
-                  Quantity (in kg or units) *
+                  Quantity *
                 </label>
                 <div className="relative">
                   <input
-                    type="number"
+                    type="text"
                     id="quantity"
                     name="quantity"
                     value={formData.quantity}
                     onChange={handleChange}
-                    placeholder="e.g., 5"
+                    placeholder="e.g., 15 plates"
                     required
-                    min="1"
-                    step="0.1"
                     className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
                   />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                    <span className="text-sm text-gray-500 font-medium">kg</span>
-                  </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   Estimate the total weight or number of items
                 </p>
               </div>
 
-               {/* Contact Field */}
               <div>
                 <label htmlFor="foodType" className="block text-sm font-semibold text-gray-700 mb-3">
                   <Phone className="w-4 h-4 inline mr-2" />
@@ -231,31 +294,49 @@ const AddDonationForm = () => {
                 </p>
               </div>
 
-              {/* Location Field */}
               <div>
-                <label htmlFor="location" className="block text-sm font-semibold text-gray-700 mb-3">
-                  <MapPinIcon className="w-4 h-4 inline mr-2" />
-                  Pickup Location *
-                </label>
-                <div className="relative">
-                  <textarea
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="Enter complete pickup address including street, city, and any specific instructions..."
-                    required
-                    rows="4"
-                    className="w-full px-4 py-4 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 resize-none"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <MapPin className="w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Provide detailed address and any special pickup instructions
-                </p>
-              </div>
+  <label className="block text-sm font-semibold text-gray-700 mb-3">🏠 Address Details *</label>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <input
+      type="text"
+      name="street"
+      value={formData.street}
+      onChange={handleChange}
+      placeholder="Street"
+      required
+      className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+    />
+    <input
+      type="text"
+      name="city"
+      value={formData.city}
+      onChange={handleChange}
+      placeholder="City"
+      required
+      className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+    />
+    <input
+      type="text"
+      name="state"
+      value={formData.state}
+      onChange={handleChange}
+      placeholder="State"
+      required
+      className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+    />
+    <input
+      type="text"
+      name="pincode"
+      value={formData.pincode}
+      onChange={handleChange}
+      placeholder="Pincode"
+      required
+      className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm"
+    />
+  </div>
+</div>
+
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
@@ -268,23 +349,27 @@ const AddDonationForm = () => {
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={loading || !formData.foodType.trim() || !formData.quantity.trim() || !formData.location.trim()}
-                  className="w-full sm:flex-1 order-1 sm:order-2 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <Loader className="w-5 h-5 animate-spin mr-2" />
-                      Creating Donation...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Create Donation
-                    </>
-                  )}
-                </Button>
+               <Button
+  type="submit"
+  disabled={loading || !formData.foodType.trim() || !formData.quantity.trim() ||  !formData.street.trim() ||
+    !formData.city.trim() ||
+    !formData.state.trim() ||
+    !formData.pincode.trim() || !formData.contactNumber.trim()}
+  className="w-full sm:flex-1 order-1 sm:order-2 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {loading ? (
+    <>
+      <Loader className="w-5 h-5 animate-spin mr-2" />
+      Creating Donation...
+    </>
+  ) : (
+    <>
+      <Send className="w-5 h-5 mr-2" />
+      Create Donation
+    </>
+  )}
+</Button>
+
               </div>
             </form>
 

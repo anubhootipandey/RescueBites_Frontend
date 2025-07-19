@@ -103,7 +103,7 @@ const AdminDashboard = () => {
       await updateRequestStatus(id, status);
       toast.success(`Request ${status} successfully!`);
       fetchRequests();
-      fetchDashboard(); //  Update stats after change
+      fetchDashboard(); 
     } catch (err) {
       toast.error("Failed to update status");
     }
