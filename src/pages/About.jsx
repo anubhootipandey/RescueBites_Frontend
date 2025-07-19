@@ -21,7 +21,7 @@ import img4 from "../images/pic6.jpg";
 import img5 from "../images/pic3.jpg";
 import { Github, Linkedin, Mail } from "lucide-react";
 import team1 from "../images/team1.jpg";
-import team2 from "../images/pic1.jpg";
+import team2 from "../images/team2.jpg";
 import team3 from "../images/team3.jpg";
 
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, User, Heart, UserCheck, Eye, EyeOff, Phone, Mail, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { Lock, User, Heart, UserCheck, Eye, EyeOff, Phone, Mail, ArrowRight, ArrowLeft, Check, X } from 'lucide-react';
 import api from '../../utils/api';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -23,6 +23,9 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
 
   const totalSteps = 3;
@@ -34,6 +37,21 @@ const Register = () => {
     });
   };
 
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return regex.test(password);
+  };
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const regex = /^\d{10}$/;
+    return regex.test(phone);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -41,6 +59,30 @@ const Register = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(formData.password)) {
+      setError('Password must be at least 8 characters long and include letters, numbers, and special characters.');
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePhone(formData.contactNumber)) {
+      setError('Phone number must be exactly 10 digits.');
+      setLoading(false);
+      return;
+    }
+
+    if (!agreeTerms) {
+      setError('You must agree to the Terms and Conditions.');
       setLoading(false);
       return;
     }
@@ -94,6 +136,30 @@ const Register = () => {
     3: 'Create a strong password'
   };
 
+  const TermsModal = () => (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-xl w-[90%] max-w-lg relative">
+        <button onClick={() => setShowTermsModal(false)} className="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+          <X size={20} />
+        </button>
+        <h2 className="text-2xl font-bold mb-4 text-center">Terms and Conditions</h2>
+        <div className="text-sm text-gray-700 max-h-[300px] overflow-y-auto space-y-3">
+          <p>Welcome to RescueBites. By registering, you agree to the following terms:</p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>You must provide accurate personal information.</li>
+            <li>You agree not to impersonate others or provide fraudulent details.</li>
+            <li>All food donations must be safe, consumable, and in good condition.</li>
+            <li>Fraudulent activity including fake donation requests or false claims will result in permanent account suspension.</li>
+            <li>You will not misuse the platform or harass other users.</li>
+            <li>Your data will be used only to provide and improve RescueBites services.</li>
+            <li>RescueBites reserves the right to take legal action against users engaging in illegal activities or violating platform rules.</li>
+          </ul>
+          <p className="mt-2">By continuing, you accept and understand these terms fully.</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -102,6 +168,8 @@ const Register = () => {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-yellow-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-amber-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
       </div>
+
+      {showTermsModal && <TermsModal />}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -436,6 +504,28 @@ const Register = () => {
                       </button>
                     </div>
                   </motion.div>
+                   {currentStep === 3 && (
+        <div className="flex items-center mt-4">
+          <input
+            type="checkbox"
+            id="agreeTerms"
+            checked={agreeTerms}
+            onChange={() => setAgreeTerms(!agreeTerms)}
+            className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+            required
+          />
+          <label htmlFor="agreeTerms" className="ml-2 text-sm text-gray-600">
+            I agree to the{' '}
+            <button
+              type="button"
+              onClick={() => setShowTermsModal(true)}
+              className="text-orange-600 underline hover:text-orange-500"
+            >
+              Terms and Conditions
+            </button>
+          </label>
+        </div>
+      )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -474,23 +564,27 @@ const Register = () => {
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
-                    disabled={loading || !isStepValid(currentStep)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    size="lg"
-                  >
-                    {loading ? (
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        Creating Account...
-                      </div>
-                    ) : (
-                      <>
-                        Create Account
-                        <Check size={16} />
-                      </>
-                    )}
-                  </Button>
+  type="submit"
+  disabled={loading || !isStepValid(currentStep) || !agreeTerms}
+
+  className={`flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${
+    (!isStepValid(currentStep) || !agreeTerms || loading) &&
+    'opacity-50 cursor-not-allowed transform-none'
+  }`}
+>
+  {loading ? (
+    <div className="flex items-center">
+      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+      Creating Account...
+    </div>
+  ) : (
+    <>
+      Create Account
+      <Check size={16} />
+    </>
+  )}
+</Button>
+
                 )}
               </div>
             </motion.div>
