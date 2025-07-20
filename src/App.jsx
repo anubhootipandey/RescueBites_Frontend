@@ -20,6 +20,7 @@ import Community from "./pages/community/Community";
 import GuestDashboard from "./pages/GuestDashboard";
 import FAQ from "./pages/FAQ";
 import ContactUs from "./pages/ContactUs";
+import ScrollToTop from "./components/shared/ScrollToTop";
 
 function App() {
   return (
@@ -110,6 +111,7 @@ function App() {
         />
       </Routes>
       <Footer />
+      <ScrollToTop />
     </Router>
   );
 }
