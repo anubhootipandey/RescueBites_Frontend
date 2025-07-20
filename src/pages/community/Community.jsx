@@ -345,7 +345,7 @@ const Community = () => {
                         <div className="flex-shrink-0">
                           <div className="relative">
                             <img
-                              src={post.avatar || "/default-avatar.png"}
+                              src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${post.username}` || post.avatar}
                               alt="avatar"
                               className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                             />
