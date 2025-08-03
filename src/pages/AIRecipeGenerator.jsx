@@ -767,43 +767,6 @@ Format the response clearly and keep it concise. If the ingredients don't work w
             )}
           </div>
 
-          {/* API Key Notice */}
-          {!GEMINI_API_KEY && (
-            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-2xl p-6">
-              <div className="flex items-start space-x-3">
-                <Sparkles className="h-6 w-6 text-blue-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">
-                    Need a Gemini API Key?
-                  </h3>
-                  <p className="text-blue-800 mb-3">
-                    Get your free Gemini Pro API key to start generating
-                    recipes:
-                  </p>
-                  <ol className="text-blue-800 text-sm space-y-1 ml-4">
-                    <li>
-                      1. Visit{" "}
-                      <a
-                        href="https://makersuite.google.com/app/apikey"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline font-medium"
-                      >
-                        Google AI Studio
-                      </a>
-                    </li>
-                    <li>2. Sign in with your Google account</li>
-                    <li>3. Click "Create API Key"</li>
-                    <li>
-                      4. Copy the key and add it to your .env file as
-                      VITE_GEMINI_API_KEY
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Error Alert */}
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
